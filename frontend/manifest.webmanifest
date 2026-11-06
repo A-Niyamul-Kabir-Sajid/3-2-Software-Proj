@@ -1,0 +1,9 @@
+{
+  "name": "ClassSync",
+  "short_name": "ClassSync",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#120605",
+  "theme_color": "#e8300f",
+  "icons": [{ "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
