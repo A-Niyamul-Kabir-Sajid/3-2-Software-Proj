@@ -55,6 +55,10 @@ A Progressive Web App for a class: **CR** uploads routine/notice/assignment/form
 
 Git rules: branch from `main`, small commits (`feat:`, `fix:`, `chore:`), PR with one review, **commit after every working increment**, never commit `.env`/secrets.
 
+**Mandatory rules (apply to every person and every AI assistant):**
+1. **No AI co-author.** Never add `Co-Authored-By: Claude` (or any AI) trailer or "Generated with" line to any commit or PR description. Commits are authored by the human only.
+2. **Keep this plan current.** After every successful piece of work or finished module, update this file (`docs/TEAM_PLAN.md`): tick the item in the Progress Tracker (section 7), note any API/pattern changes, then commit the plan update together with (or right after) the work.
+
 ---
 
 ## 5. Prompts (copy-paste to your AI assistant)
@@ -67,6 +71,8 @@ Frontend and backend must stay completely separate; they communicate only via RE
 under /api/v1. Roles: CR, TEACHER, STUDENT. Apply GoF design patterns only where they truly fit
 (see docs/TEAM_PLAN.md section 3) and name classes after the pattern (e.g. PostFactory).
 Write unit tests for service layer. Commit after every working increment with conventional commits.
+NEVER add a Co-Authored-By AI trailer to commits. After every successful task or finished module,
+update docs/TEAM_PLAN.md (Progress Tracker, section 7) and commit it.
 UI style: dark glassy theme with red→orange gradient, large display type (see frontend/css/theme.css).
 ```
 
@@ -134,3 +140,12 @@ CR can change the routine through one prompt + confirmation, and unclear prompts
 2. **Week 2** — uploads, assignments, tags, comments, chat.
 3. **Week 3** — RAG + confirmation flow, offline sync, polish, tests.
 4. **Week 4** — demo, docs, bug-fix.
+
+## 7. Progress Tracker (update after every successful task / module)
+- [x] Repo + project structure
+- [x] Team plan
+- [x] Frontend UI (mock data)
+- [x] Backend skeleton (Spring Boot, CORS, health, PostFactory)
+- [ ] P1: auth, JWT, offline sync
+- [ ] P2: routine, notices, assignments, forms, comments, uploads
+- [ ] P3: chat, RAG assistant
