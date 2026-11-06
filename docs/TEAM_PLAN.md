@@ -146,6 +146,7 @@ CR can change the routine through one prompt + confirmation, and unclear prompts
 - [x] Team plan
 - [x] Frontend UI (mock data)
 - [x] Backend skeleton (Spring Boot, CORS, health, PostFactory)
+- [x] Maven 3.9.9 installed (~/tools), `mvn test` passes (3 tests)
 - [ ] P1: auth, JWT, offline sync
 - [ ] P2: routine, notices, assignments, forms, comments, uploads
 - [ ] P3: chat, RAG assistant
