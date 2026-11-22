@@ -61,7 +61,7 @@ Keep this board, the TEAM_PLAN §6 epic headings and the `| Status |` row of eac
 | Epic | Title | Owner | Branch | Status |
 |---|---|---|---|---|
 | E0 | Project Setup & Git Workflow | Dev1 | `feature/E0-project-setup`, `feature/E0-followup` | Done |
-| E1 | Security, Users & Platform Core | Dev1 | `feature/E1-security-core` | In progress |
+| E1 | Security, Users & Platform Core | Dev1 | `feature/E1-security-core` | In review |
 | E2 | Routine & Notices | Dev2 | `feature/E2-routine-notices` | Not done |
 | E3 | Assignments, Forms, Comments & Uploads | Dev2 | `feature/E3-assignments` | Not done |
 | E4 | Group Chat & Notifications | Dev3 | `feature/E4-chat` | Not done |
@@ -73,10 +73,14 @@ Keep this board, the TEAM_PLAN §6 epic headings and the `| Status |` row of eac
 ## 5. Test count tracker
 | | Target | Current |
 |---|---|---|
-| Unit tests (service layer) | ≥ 20 (aim 25) | 1 |
-| Integration tests (controller, MockMvc) | ≥ 10 (aim 12) | 2 |
+| Unit tests (service layer) | ≥ 20 (aim 25) | 22 |
+| Integration tests (controller, MockMvc) | ≥ 10 (aim 12) | 13 |
 
 ## 6. Notes / decisions log
 - Roles are `ADMIN`, `CR`, `TEACHER`, `STUDENT`, the guideline's ADMIN/SELLER/BUYER adapted to the class domain.
 - Dev1 reviews all PRs. Dev2 reviews Dev1's own PRs, because GitHub blocks self-approval.
 - Tests run on H2 (`test` profile). Dev and prod run on PostgreSQL.
+- E1: tests need `-Dnet.bytebuddy.experimental=true` (set in surefire `argLine`) only because some devs run JDK 25 locally; CI uses JDK 17.
+- E1: self-registration allows only STUDENT or CR; ADMIN promotes users to TEACHER via `PUT /api/v1/admin/users/{id}/roles`.
+- E1: logout uses an in-memory JWT blacklist (per instance, cleared on restart), an accepted trade-off for a single Render instance.
+- E1: shared test helpers `@IntegrationTest` and `TestAuthHelper` (`src/test/java/edu/kuet/classsync/support/`) are to be reused by every later epic.

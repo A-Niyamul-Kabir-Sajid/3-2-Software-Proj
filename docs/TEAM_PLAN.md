@@ -88,17 +88,17 @@ This section is the summary. **The detailed, implementable spec for each epic is
 
 **Done when**: `develop` exists, `main` and `develop` are protected, and CI runs on this PR.
 
-### E1 — Security, Users & Platform Core · **Dev1** · `feature/E1-security-core` · Status: **In progress**
+### E1 — Security, Users & Platform Core · **Dev1** · `feature/E1-security-core` · Status: **In review**
 
 > **Full spec:** [epics/E1-security-core.md](epics/E1-security-core.md)
-- [ ] E1-S1 PostgreSQL config with profiles (`dev`, `test` = H2, `prod`) and all credentials taken from env vars
-- [ ] E1-S2 Entities `User`, `Role` (M:M `user_roles`) and repositories; seed roles at startup
-- [ ] E1-S3 Register / Login / Logout / Me (`/api/v1/auth/**`): BCrypt, JWT, `Builder` for User, `Strategy` password policy
-- [ ] E1-S4 `SecurityConfig`: stateless JWT filter, URL rules, `@EnableMethodSecurity`, 401/403 JSON responses
-- [ ] E1-S5 `GlobalExceptionHandler` + `ApiError` (Builder) + custom exceptions (`NotFoundException`, `ConflictException`, …)
-- [ ] E1-S6 `UserController` (ADMIN): list, get, change role, delete user
-- [ ] E1-S7 Frontend: login/register screens, JWT stored and attached in `js/api.js`, role-aware navigation
-- [ ] E1-S8 Tests: 6 unit + 3 integration
+- [x] E1-S1 PostgreSQL config with profiles (`dev`, `test` = H2, `prod`) and all credentials taken from env vars
+- [x] E1-S2 Entities `User`, `Role` (M:M `user_roles`) and repositories; seed roles at startup
+- [x] E1-S3 Register / Login / Logout / Me (`/api/v1/auth/**`): BCrypt, JWT, `Builder` for User, `Strategy` password policy
+- [x] E1-S4 `SecurityConfig`: stateless JWT filter, URL rules, `@EnableMethodSecurity`, 401/403 JSON responses
+- [x] E1-S5 `GlobalExceptionHandler` + `ApiError` (Builder) + custom exceptions (`NotFoundException`, `ConflictException`, …)
+- [x] E1-S6 `UserController` (ADMIN): list, get, change role, delete user
+- [x] E1-S7 Frontend: login/register screens, JWT stored and attached in `js/api.js`, role-aware navigation
+- [x] E1-S8 Tests: 6 unit + 3 integration
 
 ### E2 — Routine & Notices · **Dev2** · `feature/E2-routine-notices` · Status: **Not done**
 

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **In progress** |
+| Status | **In review** |
 | Owner | Dev1 |
 | Reviewer | Dev2 |
 | Branch | `feature/E1-security-core` |
@@ -129,7 +129,7 @@ Integration tests (`AuthControllerIT`, `AdminUserControllerIT`):
 Update `ClassSyncApplicationTests` to `@ActiveProfiles("test")`, and remove `addFilters = false` because the health endpoint is public.
 
 ## Definition of Done
-- [ ] All 8 stories done; `mvn clean verify` green with ≥ 6 unit + 3 IT
-- [ ] The app runs locally against PostgreSQL with env vars only
-- [ ] A curl flow works: register → login → `/auth/me` with token → admin endpoint as student gives 403
-- [ ] `docs/agent.md` E1 status updated; the test tracker counts updated
+- [x] All 8 stories done; `mvn clean verify` green with ≥ 6 unit + 3 IT
+- [ ] The app runs locally against PostgreSQL with env vars only _(verify with the E6 docker-compose PostgreSQL; tests and the smoke test used H2)_
+- [x] A curl flow works: register → login → `/auth/me` with token → admin endpoint as student gives 403
+- [x] `docs/agent.md` E1 status updated; the test tracker counts updated
