@@ -2,6 +2,14 @@
 
 Read this file first, before any work in this repository.
 
+> **Always, without being asked:** when an epic's status changes (especially to **Done**), update it in **every** place it appears, in the same commit:
+> 1. the §4 status board below,
+> 2. the epic heading in `docs/TEAM_PLAN.md` §6 (`· Status: **Done**`) plus its story checkboxes,
+> 3. the `| Status |` row and Definition-of-Done checkboxes in `docs/epics/E<n>-*.md`,
+> 4. anywhere else the epic's status is mentioned (README, API.md notes, …).
+>
+> The developer should never have to remind you of this.
+
 ## 1. Read before working
 1. [docs/PROJECT_GUIDELINE.md](PROJECT_GUIDELINE.md) is the course requirements and marking rubric. Everything must satisfy it.
 2. [docs/TEAM_PLAN.md](TEAM_PLAN.md) holds the epics, stories, owners, DB design, pattern map and test quota.
