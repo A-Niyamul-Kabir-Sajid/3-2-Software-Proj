@@ -44,6 +44,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <!-- lets Mockito/Byte Buddy mock classes when developers run a newer local JDK than 17 -->
+          <argLine>-Dnet.bytebuddy.experimental=true</argLine>
           <includes>
             <include>**/*Test.java</include>
             <include>**/*Tests.java</include>
