@@ -101,7 +101,7 @@ Create **two rulesets**: **Settings → Rules → Rulesets → New ruleset → N
 | ↳ Required approvals | **1** | **1** | Dev1 reviews (Dev2 for Dev1's own PRs) |
 | ↳ Dismiss stale pull request approvals when new commits are pushed | ✅ | ✅ | A new push needs a fresh approval |
 | ↳ Require review from specific teams | ⬜ | ⬜ | No GitHub teams (personal repo) |
-| ↳ Require review from Code Owners | ⬜ | ⬜ | No `CODEOWNERS` file |
+| ↳ Require review from Code Owners | ⬜ | ⬜ | `.github/CODEOWNERS` auto-requests Dev1 on every PR, but enforcing it would block Dev1's own PRs (sole owner, cannot self-approve). See [CODEOWNERS_GUIDE.md](CODEOWNERS_GUIDE.md) |
 | ↳ Require approval of the most recent reviewable push | ⬜ | ⬜ | Would block Dev1 from approving release PRs that contain merges Dev1 performed |
 | ↳ Require conversation resolution before merging | ✅ | ✅ | Every review comment must be resolved |
 | ↳ Require an additional approval for unattributed Copilot PRs | ⬜ | ⬜ | Copilot is not used |
