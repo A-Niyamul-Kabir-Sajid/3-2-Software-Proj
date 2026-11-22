@@ -2,6 +2,7 @@
 
 | Field | Value |
 |---|---|
+| Status | **Not done** |
 | Owner | Dev2 |
 | Reviewer | Dev1 |
 | Branch | `feature/E8-docs` (can be opened several times: `feature/E8-docs-api`, `feature/E8-docs-final`) |

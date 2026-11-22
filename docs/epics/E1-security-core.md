@@ -2,6 +2,7 @@
 
 | Field | Value |
 |---|---|
+| Status | **Not done** |
 | Owner | Dev1 |
 | Reviewer | Dev2 |
 | Branch | `feature/E1-security-core` |

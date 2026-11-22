@@ -76,7 +76,7 @@ This plan must satisfy [PROJECT_GUIDELINE.md](PROJECT_GUIDELINE.md) (CSE 3220). 
 
 This section is the summary. **The detailed, implementable spec for each epic is in [`docs/epics/`](epics/)**, and shared rules are in [epics/CONVENTIONS.md](epics/CONVENTIONS.md). Each story is one or more commits on the epic's branch. Branch names follow `feature/E<n>-<slug>`. Tick a story `[x]` when it is merged.
 
-### E0 — Project Setup & Git Workflow · **Dev1** · `feature/E0-project-setup`
+### E0 — Project Setup & Git Workflow · **Dev1** · `feature/E0-project-setup` · Status: **Done**
 
 > **Full spec:** [epics/E0-project-setup.md](epics/E0-project-setup.md)
 - [x] E0-S1 Save the project guideline, Jira-style team plan and detailed epic specs in `docs/`
@@ -88,7 +88,7 @@ This section is the summary. **The detailed, implementable spec for each epic is
 
 **Done when**: `develop` exists, `main` and `develop` are protected, and CI runs on this PR.
 
-### E1 — Security, Users & Platform Core · **Dev1** · `feature/E1-security-core`
+### E1 — Security, Users & Platform Core · **Dev1** · `feature/E1-security-core` · Status: **Not done**
 
 > **Full spec:** [epics/E1-security-core.md](epics/E1-security-core.md)
 - [ ] E1-S1 PostgreSQL config with profiles (`dev`, `test` = H2, `prod`) and all credentials taken from env vars
@@ -100,7 +100,7 @@ This section is the summary. **The detailed, implementable spec for each epic is
 - [ ] E1-S7 Frontend: login/register screens, JWT stored and attached in `js/api.js`, role-aware navigation
 - [ ] E1-S8 Tests: 6 unit + 3 integration
 
-### E2 — Routine & Notices · **Dev2** · `feature/E2-routine-notices`
+### E2 — Routine & Notices · **Dev2** · `feature/E2-routine-notices` · Status: **Not done**
 
 > **Full spec:** [epics/E2-routine-notices.md](epics/E2-routine-notices.md)
 - [ ] E2-S1 Entities `Subject`, `RoutineSlot` (M:1 subject, M:1 teacher), `Notice` (M:1 author)
@@ -111,7 +111,7 @@ This section is the summary. **The detailed, implementable spec for each epic is
 - [ ] E2-S6 Frontend Routine and Notice pages wired to the API (replace mock data)
 - [ ] E2-S7 Tests: 5 unit + 2 integration
 
-### E3 — Assignments, Forms, Comments & Uploads · **Dev2** · `feature/E3-assignments`
+### E3 — Assignments, Forms, Comments & Uploads · **Dev2** · `feature/E3-assignments` · Status: **Not done**
 
 > **Full spec:** [epics/E3-assignments.md](epics/E3-assignments.md)
 - [ ] E3-S1 Entities `Assignment` (State: Draft/Published/Closed), `Submission`, `Comment`, `Form`, `FormResponse`
@@ -123,7 +123,7 @@ This section is the summary. **The detailed, implementable spec for each epic is
 - [ ] E3-S7 Frontend Assignments / Forms pages wired to the API
 - [ ] E3-S8 Tests: 6 unit + 3 integration
 
-### E4 — Group Chat & Notifications · **Dev3** · `feature/E4-chat`
+### E4 — Group Chat & Notifications · **Dev3** · `feature/E4-chat` · Status: **Not done**
 
 > **Full spec:** [epics/E4-chat.md](epics/E4-chat.md)
 - [ ] E4-S1 Entity `ChatMessage` (M:1 sender) and repository
@@ -133,7 +133,7 @@ This section is the summary. **The detailed, implementable spec for each epic is
 - [ ] E4-S5 Frontend chat page wired (live messages, history)
 - [ ] E4-S6 Tests: 3 unit + 2 integration
 
-### E5 — AI (RAG) Assistant · **Dev3** · `feature/E5-rag-assistant`
+### E5 — AI (RAG) Assistant · **Dev3** · `feature/E5-rag-assistant` · Status: **Not done**
 
 > **Full spec:** [epics/E5-rag-assistant.md](epics/E5-rag-assistant.md)
 - [ ] E5-S1 `LlmClientAdapter` interface + one provider implementation (API key from env) + a fake for tests
@@ -143,7 +143,7 @@ This section is the summary. **The detailed, implementable spec for each epic is
 - [ ] E5-S5 Frontend assistant page with a Confirm/Cancel card
 - [ ] E5-S6 Tests: 5 unit + 2 integration
 
-### E6 — Docker, CI/CD & Render Deployment · **Dev1** · `feature/E6-docker-cicd`
+### E6 — Docker, CI/CD & Render Deployment · **Dev1** · `feature/E6-docker-cicd` · Status: **Not done**
 
 > **Full spec:** [epics/E6-docker-cicd.md](epics/E6-docker-cicd.md)
 - [ ] E6-S1 Multi-stage `backend/Dockerfile` (Maven build → JRE runtime, non-root user)
@@ -153,7 +153,7 @@ This section is the summary. **The detailed, implementable spec for each epic is
 - [ ] E6-S5 CD: on push to `main`, after tests pass, trigger the Render deploy hook (`RENDER_DEPLOY_HOOK_URL` secret)
 - [ ] E6-S6 Verify the live URL and record it in the README
 
-### E7 — Bonus: Monitoring & Second Deployment · **Dev3** · `feature/E7-observability`
+### E7 — Bonus: Monitoring & Second Deployment · **Dev3** · `feature/E7-observability` · Status: **Not done**
 
 > **Full spec:** [epics/E7-observability.md](epics/E7-observability.md)
 - [ ] E7-S1 Spring Boot Actuator (`health`, `info`, `prometheus`) with secured endpoints
@@ -162,7 +162,7 @@ This section is the summary. **The detailed, implementable spec for each epic is
 - [ ] E7-S4 Second deployment (Railway / Fly.io / Koyeb …) + its config file
 - [ ] E7-S5 Document monitoring and the second deployment in the README
 
-### E8 — Documentation & Demo · **Dev2** · `feature/E8-docs`
+### E8 — Documentation & Demo · **Dev2** · `feature/E8-docs` · Status: **Not done**
 
 > **Full spec:** [epics/E8-docs.md](epics/E8-docs.md)
 - [ ] E8-S1 README: description, features, tech stack, roles

@@ -17,7 +17,7 @@ When a developer says "work on Epic E<n>":
 3. Set the epic to **In progress** on the board below.
 4. Implement the stories in order. Make one or more small Conventional Commits per story, e.g. `feat(routine): add RoutineSlot entity` with `Refs E2-S1` in the body.
 5. Write the epic's tests (the exact names are in the spec). `cd backend && mvn clean verify` must pass.
-6. Tick finished stories in TEAM_PLAN §6, update this board and the test tracker (§5), and append endpoints to `docs/API.md`.
+6. Tick finished stories in TEAM_PLAN §6, update the epic status in all 3 places (§3), update the test tracker (§5), and append endpoints to `docs/API.md`.
 7. **AI agents must not push or open the PR themselves.** Commit locally, then tell the developer to push and open a PR into `develop` using GIT_WORKFLOW §3. Set the status to `In review`.
 
 ### Short version: what a developer does to complete an epic
@@ -28,12 +28,17 @@ When a developer says "work on Epic E<n>":
 5. **Update docs in the same branch**: tick stories in TEAM_PLAN, set the status here to `In review`, update the test tracker, add rows to `docs/API.md`.
 6. **Push and open a PR into `develop`**: `git push -u origin feature/E<n>-<slug>`, then a PR with base `develop`, reviewer **Dev1** (Dev2 for Dev1's PRs). Wait for green CI.
 7. **Fix review comments** with new commits and push again.
-8. **After the merge**: sync `develop`, delete the branch, and mark the epic `Done` via a small `docs/…` PR into `develop` (GIT_WORKFLOW §5.1).
+8. **After the merge**: sync `develop`, delete the branch, and mark the epic `Done` in this board, the TEAM_PLAN heading and the epic spec, via a small `docs/…` PR into `develop` (GIT_WORKFLOW §5.1).
 
 ## 3. Hard rules
 - Never commit or push to `main` directly. Direct pushes to `main` are an automatic fail.
 - **`docs/` is never updated on `main`.** All docs changes go to `develop`, either in the epic PR or in a `docs/<topic>` branch PR. `main` only gets docs through a `develop → main` release PR. Never open a docs PR into `main`.
 - **Keep docs in sync.** Before starting work, check for new docs on `develop` (`git fetch origin && git log HEAD..origin/develop -- docs/`). If there are any, rebase on `develop` first (GIT_WORKFLOW §5.1).
+- **Epic status lives in 3 places, and they must always match.** Whenever an epic's status changes (`Not done` → `In progress` → `In review` → `Done`), update all of them in the same commit:
+  1. the status board in this file (§4),
+  2. the epic heading in `docs/TEAM_PLAN.md` §6 (`… · Status: **Done**`), plus its ticked stories,
+  3. the `| Status |` row at the top of `docs/epics/E<n>-*.md`, plus its Definition of Done checkboxes.
+  Never mark an epic `Done` in one place only.
 - Never add a `Co-Authored-By:` AI trailer or a "Generated with …" line to commits or PRs.
 - No hardcoded credentials. Read them from env vars (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, …).
 - Every endpoint is under `/api/v1/**` and protected by role (TEAM_PLAN §2).
@@ -43,6 +48,7 @@ When a developer says "work on Epic E<n>":
 
 ## 4. Epic status board
 Status values: `Not done` · `In progress` · `In review` (PR open) · `Done` (merged into develop)
+Keep this board, the TEAM_PLAN §6 epic headings and the `| Status |` row of each epic spec identical (see §3).
 
 | Epic | Title | Owner | Branch | Status |
 |---|---|---|---|---|

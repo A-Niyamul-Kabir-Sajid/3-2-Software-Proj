@@ -2,6 +2,7 @@
 
 | Field | Value |
 |---|---|
+| Status | **Done** |
 | Owner | Dev1 |
 | Reviewer | Dev2 (Dev1 cannot approve their own PR) |
 | Branch | `feature/E0-project-setup` |
