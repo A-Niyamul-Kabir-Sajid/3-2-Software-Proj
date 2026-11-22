@@ -60,7 +60,7 @@ gh pr view --web          # open it in the browser to finish the description
 If no check appears:
 - **Actions → "I understand my workflows, go ahead and enable them"** (Actions may be disabled on a new repo).
 - **Settings → Actions → General → Allow all actions**.
-- The workflow file must be at exactly `.github/workflows/ci.yml` on the PR branch, and the PR base must be `develop` or `main` (the workflow's `pull_request.branches`).
+- The workflow file must be at exactly `.github/workflows/ci.yml` on the pushed branch. CI runs on every push to any branch, on PRs into any branch, and manually via **Actions → CI → Run workflow**.
 
 **Step 4: protect the branches** (§1.4, §1.5). Now that the check has run, **`build-and-test`** shows up in the "Require status checks" search box. Type `build-and-test` and select it.
 

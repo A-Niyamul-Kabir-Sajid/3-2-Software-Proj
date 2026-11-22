@@ -34,7 +34,7 @@ Contains the one-time GitHub setup, every commit/branch/rebase/push command, the
 
 ### E0-S5 CI workflow
 `.github/workflows/ci.yml`:
-- Triggers on `pull_request` and `push` to `develop` and `main`.
+- Triggers on `push` to **every** branch, `pull_request` into **any** branch, and `workflow_dispatch` (manual). A `concurrency` group cancels outdated runs of the same branch/PR.
 - One job **named `build-and-test`**, because branch protection refers to this exact name.
 - JDK 17 Temurin with Maven cache; runs `mvn -B clean verify` in `backend/` and uploads the surefire reports.
 - E6 extends this file later with the Docker build and deploy jobs. **Do not rename the job.**
