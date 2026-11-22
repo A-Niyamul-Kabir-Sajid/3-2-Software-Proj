@@ -1,152 +1,187 @@
-# ClassSync — Team Plan & Prompts (3 people)
+# ClassSync — Team Plan (Epics & Stories)
 
-A Progressive Web App for a class: **CR** uploads routine/notice/assignment/forms, **Teacher** posts assignments & documents with subject tags and comments, **Students** view everything, chat in a group, and ask an AI (RAG) assistant. Installable and usable offline.
+A Progressive Web App for a class. The **CR** uploads the routine, notices, assignments and forms. A **Teacher** posts assignments and documents tagged by subject, with comments. **Students** view everything, chat in a group and ask an AI (RAG) assistant. An **Admin** manages users and roles.
 
-## 1. Features (from the flow diagram)
-| Area | Requirement |
-|---|---|
-| PWA | Installable, offline cache, background sync of queued actions |
-| CR upload | Routine (latest + viewer), Notice, Assignment, Form |
-| Routine | Student = viewer; CR = routine editor |
-| Assignment/Form section | Shows what is complete / pending (per-student status) |
-| Teacher | Add assignment + link/document, tagged by subject; backend acts as hosting server |
-| CR | Can do the same, tag by subject |
-| Comments | Attached to a teacher post: 1) Public comment 2) Teacher-only (private) comment |
-| Group chat | Real-time class chat |
-| RAG assistant | User gives one prompt; AI understands and updates data itself **after confirmation**; if unclear, asks clarifying questions to CR/Sir |
-
-## 2. Architecture
-- **Backend**: Java 17+, Spring Boot 3, package-by-module under `edu.kuet.classsync.*`. REST + WebSocket (STOMP). H2 for dev, PostgreSQL for prod. JWT auth, roles `CR`, `TEACHER`, `STUDENT`.
-- **Frontend**: static PWA (`frontend/`), talks to backend only through `js/api.js` (Adapter + Proxy over `fetch`). No shared code with backend.
-- **Contract**: REST JSON under `/api/v1/**`; keep `docs/API.md` updated by whoever changes an endpoint.
-
-### Modules
-`auth` · `routine` · `notice` · `assignment` · `form` · `chat` · `rag` · `common` (config, patterns)
-
-## 3. Design-pattern map (use where it genuinely fits)
-| Category | Pattern | Where |
-|---|---|---|
-| Creational | **Factory Method** | `PostFactory` creates Notice/Assignment/Form from upload type |
-| Creational | **Builder** | `Assignment`, `RoutineSlot`, `ApiError` DTO builders |
-| Creational | **Singleton** | Spring beans; frontend `Store`, `ApiClient` |
-| Creational | **Abstract Factory** | `StorageFactory` → local / cloud file storage families |
-| Structural | **Adapter** | `LlmClientAdapter` (OpenAI/Gemini/Ollama → one interface); frontend `api.js` |
-| Structural | **Facade** | `RagFacade`, `UploadFacade` hide multi-step flows |
-| Structural | **Proxy** | `CachingRoutineServiceProxy`, role-checking proxy, frontend offline-aware fetch proxy |
-| Structural | **Decorator** | Notification channels (push + email), logging on services |
-| Structural | **Composite** | Routine = Week → Day → Slot |
-| Structural | **Bridge / Flyweight** | Bridge: `Notifier` × `Channel`; Flyweight: shared Subject tag objects |
-| Behavioral | **Strategy** | Sorting/filtering by subject/date/priority; comment visibility rule |
-| Behavioral | **Chain of Responsibility** | Upload validation (size → type → virus → role) |
-| Behavioral | **Command** | RAG actions (`UpdateRoutineCommand`, …) with `undo()` for confirmation/rollback |
-| Behavioral | **Memento** | Routine editor undo/redo; RAG pending-change snapshot |
-| Behavioral | **State** | Assignment status (Draft → Published → Closed); RAG conversation state (Idle → Clarifying → AwaitingConfirm → Applied) |
-| Behavioral | **Mediator** | Chat room mediates users; frontend event bus |
-| Behavioral | **Template Method** | `AbstractUploadHandler.handle()` = validate → store → persist → notify |
-| Behavioral | **Visitor** | Export/render routine tree to PDF / JSON / HTML |
-
-## 4. Division of work
-
-| Person | Ownership | Branch prefix |
-|---|---|---|
-| **P1 – Platform & Auth & PWA** | `auth`, `common`, frontend shell, PWA, offline sync, CI | `p1/` |
-| **P2 – Academic content** | `routine`, `notice`, `assignment`, `form`, comments, uploads/hosting | `p2/` |
-| **P3 – Realtime & AI** | `chat`, `rag`, dashboard widgets, notifications | `p3/` |
-
-Git rules: branch from `main`, small commits (`feat:`, `fix:`, `chore:`), PR with one review, **commit after every working increment**, never commit `.env`/secrets.
-
-**Mandatory rules (apply to every person and every AI assistant):**
-1. **No AI co-author.** Never add `Co-Authored-By: Claude` (or any AI) trailer or "Generated with" line to any commit or PR description. Commits are authored by the human only.
-2. **Keep this plan current.** After every successful piece of work or finished module, update this file (`docs/TEAM_PLAN.md`): tick the item in the Progress Tracker (section 7), note any API/pattern changes, then commit the plan update together with (or right after) the work.
+This plan must satisfy [PROJECT_GUIDELINE.md](PROJECT_GUIDELINE.md) (CSE 3220). Live epic status is tracked in [`agent.md`](agent.md). The Git and PR process is in [GIT_WORKFLOW.md](GIT_WORKFLOW.md).
 
 ---
 
-## 5. Prompts (copy-paste to your AI assistant)
+## 1. Team & roles
 
-### Shared preamble (give to everyone)
-```
-Project: ClassSync, a PWA for CR/Teacher/Student. Monorepo: backend/ (Spring Boot 3, Java 17,
-package-by-module under edu.kuet.classsync) and frontend/ (vanilla JS PWA, no build step).
-Frontend and backend must stay completely separate; they communicate only via REST/WebSocket JSON
-under /api/v1. Roles: CR, TEACHER, STUDENT. Apply GoF design patterns only where they truly fit
-(see docs/TEAM_PLAN.md section 3) and name classes after the pattern (e.g. PostFactory).
-Write unit tests for service layer. Commit after every working increment with conventional commits.
-NEVER add a Co-Authored-By AI trailer to commits. After every successful task or finished module,
-update docs/TEAM_PLAN.md (Progress Tracker, section 7) and commit it.
-UI style: dark glassy theme with red→orange gradient, large display type (see frontend/css/theme.css).
-```
+| Dev | Epics owned | PR reviewer |
+|---|---|---|
+| **Dev1** | E0, E1, E6 | Dev1 reviews and approves **all** PRs. Dev1's own PRs are approved by **Dev2**, because GitHub does not let an author approve their own PR. |
+| **Dev2** | E2, E3, E8 | |
+| **Dev3** | E4, E5, E7 | |
 
-### Prompt for P1 — Platform, Auth, PWA
-```
-You own: backend modules `auth`, `common`; frontend shell, service worker, offline sync.
-Tasks:
-1. Backend `auth`: User entity (id, name, email, passwordHash, role), JWT login/register,
-   Spring Security config with role-based method security. Use Builder for User, Strategy for
-   password policy, Proxy/Decorator for audit logging. Endpoints: POST /api/v1/auth/login,
-   /register, GET /api/v1/auth/me.
-2. `common`: global exception handler returning ApiError (Builder), CORS config for the frontend
-   origin, OpenAPI docs, Singleton-style config beans, StorageFactory (Abstract Factory) for file storage.
-3. Frontend: finish manifest.webmanifest, sw.js (cache-first for shell, network-first for API,
-   background sync queue for POSTs made offline), install prompt button, online/offline badge.
-   js/api.js = Adapter + Proxy: one place that attaches JWT, queues failed writes, and replays them.
-4. Login/register pages wired to the API with role-aware routing.
-Acceptance: app installs, shell loads offline, login works, queued actions sync after reconnect.
-```
+> Fill in the GitHub usernames: Dev1 = `________`, Dev2 = `________`, Dev3 = `________`
 
-### Prompt for P2 — Academic content
-```
-You own: backend modules `routine`, `notice`, `assignment`, `form`; frontend pages
-Routine, Notice board, Assignments, Forms.
-Tasks:
-1. Routine: Composite (Week→Day→Slot), Memento for editor undo/redo, Visitor for export
-   (JSON/HTML), Proxy for caching latest routine. CR can edit; students view only.
-   Endpoints: GET /routine/latest, PUT /routine, POST /routine/undo.
-2. Upload pipeline: Template Method (AbstractUploadHandler) + Chain of Responsibility validators
-   (size, mime type, role) + Factory Method (PostFactory) producing Notice/Assignment/Form.
-   Backend hosts the files (StorageFactory from P1) and returns a download URL.
-3. Assignment: subject Tag (Flyweight), State pattern (Draft/Published/Closed),
-   per-student completion status ("tumi ki ki complete korcho"), Strategy for sort/filter by
-   subject/date. Teacher and CR can both create and tag.
-4. Comments on teacher posts: Strategy for visibility — PUBLIC (everyone) vs TEACHER_ONLY
-   (author + teachers). Endpoint: POST /posts/{id}/comments {text, visibility}.
-5. Frontend pages call only js/api.js; show completed/pending sections; subject tag filter chips.
-Acceptance: CR uploads routine & notice, teacher posts tagged assignment with document,
-student sees them and marks complete, private comments hidden from students.
-```
+## 2. Architecture (summary)
+- **Backend**: Java 17, Spring Boot 3, package-by-module under `edu.kuet.classsync.*`. It exposes a REST API under `/api/v1/**` plus WebSocket (STOMP) at `/ws`.
+- **Database**: PostgreSQL (dev/prod, via Docker) with JPA/Hibernate. Tests use H2 (profile `test`).
+- **Security**: Spring Security, BCrypt, JWT (stateless) and method-level security (`@PreAuthorize`).
+- **Application roles**: `ADMIN`, `CR`, `TEACHER`, `STUDENT`. These are the guideline's ADMIN/SELLER/BUYER adapted to the class domain: CR and TEACHER act as content producers, STUDENT as consumer.
+- **Frontend**: a static PWA in `frontend/` that talks to the backend only through `js/api.js`.
+- **Delivery**: Docker and docker-compose (app + PostgreSQL), GitHub Actions CI/CD, and auto-deploy to Render from `main`.
 
-### Prompt for P3 — Realtime & AI
-```
-You own: backend modules `chat`, `rag`; frontend Chat and AI Assistant pages, dashboard widgets.
-Tasks:
-1. Group chat: WebSocket/STOMP at /ws, topic /topic/class.{id}; Mediator (ChatRoom) between
-   sessions; persist messages; load history via GET /api/v1/chat/messages.
-2. RAG assistant: embed notices/routine/assignments into a vector store (start with in-memory
-   cosine similarity, interface allows pgvector later). Facade `RagFacade.ask(prompt)`.
-   LlmClientAdapter (Adapter) wraps the chosen LLM provider.
-3. Agentic update flow: user sends ONE prompt ("move Monday DBMS to 10am"). Assistant parses
-   intent into a Command (UpdateRoutineCommand, CreateNoticeCommand...). Conversation State:
-   Idle → Clarifying → AwaitingConfirm → Applied. If confident, show a diff and ask
-   "Confirm?" — only on yes execute the Command (support undo via Memento). If NOT confident,
-   ask clarifying questions and route unresolved ones to CR/Sir via a control panel inbox.
-   Only CR and TEACHER may confirm writes; students get read-only Q&A.
-4. Frontend: chat bubbles, typing indicator, confirmation card with Confirm/Cancel, offline
-   banner (chat disabled offline, history cached).
-Acceptance: students chat in real time; assistant answers from class data with sources;
-CR can change the routine through one prompt + confirmation, and unclear prompts trigger questions.
-```
+## 3. Database (target ≥ 6 tables, all relationship types)
+| Table | Relationships |
+|---|---|
+| `users` | M:M `roles` via `user_roles`; 1:M notices, assignments, comments, chat_messages |
+| `roles` | M:M `users` |
+| `user_roles` | join table (M:M) |
+| `subjects` | 1:M assignments, routine_slots; M:M teachers via `teacher_subjects` |
+| `routine_slots` | M:1 subject, M:1 teacher (user) |
+| `notices` | M:1 author (user) |
+| `assignments` | M:1 subject, M:1 author; 1:M comments, submissions |
+| `submissions` | M:1 assignment, M:1 student (per-student complete/pending) |
+| `comments` | M:1 assignment, M:1 author; visibility PUBLIC / TEACHER_ONLY |
+| `forms`, `form_responses` | 1:M responses, M:1 user |
+| `chat_messages` | M:1 sender (user) |
+| `attachments` | uploaded files; 1:1 from assignment, M:1 uploader |
+| `assistant_actions` | M:1 created_by (user); RAG pending/applied commands |
 
-## 6. Milestones
-1. **Week 1** — skeleton, auth, shell/PWA, static UI (done in repo), routine read.
-2. **Week 2** — uploads, assignments, tags, comments, chat.
-3. **Week 3** — RAG + confirmation flow, offline sync, polish, tests.
-4. **Week 4** — demo, docs, bug-fix.
+## 4. Design-pattern map (use only where it genuinely fits)
+| Pattern | Where | Epic |
+|---|---|---|
+| Builder | `User`, `ApiError`, `Assignment` builders | E1, E3 |
+| Strategy | Password policy; comment visibility; sort/filter by subject/date | E1, E3 |
+| Proxy | `CachingRoutineServiceProxy`; frontend offline-aware `api.js` | E2, E1 |
+| Composite | Routine = Week → Day → Slot | E2 |
+| Memento | Routine editor undo | E2 |
+| Factory Method | `PostFactory` (Notice / Assignment / Form) | E3 |
+| Chain of Responsibility | Upload validation (size → type → role) | E3 |
+| Template Method | `AbstractUploadHandler` (validate → store → persist) | E3 |
+| State | Assignment status Draft → Published → Closed | E3 |
+| Abstract Factory | `StorageFactory` (local / cloud storage) | E3 |
+| Mediator | `ChatRoom` between sessions | E4 |
+| Observer | Notify on new notice/assignment | E4 |
+| Adapter | `LlmClientAdapter` (any LLM → one interface) | E5 |
+| Facade | `RagFacade.ask()` | E5 |
+| Command | RAG actions with `undo()` after confirmation | E5 |
 
-## 7. Progress Tracker (update after every successful task / module)
-- [x] Repo + project structure
-- [x] Team plan
-- [x] Frontend UI (mock data)
-- [x] Backend skeleton (Spring Boot, CORS, health, PostFactory)
-- [x] Maven 3.9.9 installed (~/tools), `mvn test` passes (3 tests)
-- [ ] P1: auth, JWT, offline sync
-- [ ] P2: routine, notices, assignments, forms, comments, uploads
-- [ ] P3: chat, RAG assistant
+## 5. Testing quota (guideline: ≥ 20 unit, ≥ 10 integration; target 25 / 12)
+| Epic | Unit (Service, JUnit + Mockito) | Integration (Controller, SpringBootTest + MockMvc) |
+|---|---|---|
+| E1 | 6 | 3 |
+| E2 | 5 | 2 |
+| E3 | 6 | 3 |
+| E4 | 3 | 2 |
+| E5 | 5 | 2 |
+| **Total** | **25** | **12** |
+
+---
+
+## 6. Epics & stories
+
+This section is the summary. **The detailed, implementable spec for each epic is in [`docs/epics/`](epics/)**, and shared rules are in [epics/CONVENTIONS.md](epics/CONVENTIONS.md). Each story is one or more commits on the epic's branch. Branch names follow `feature/E<n>-<slug>`. Tick a story `[x]` when it is merged.
+
+### E0 — Project Setup & Git Workflow · **Dev1** · `feature/E0-project-setup`
+
+> **Full spec:** [epics/E0-project-setup.md](epics/E0-project-setup.md)
+- [ ] E0-S1 Save the project guideline, Jira-style team plan and detailed epic specs in `docs/`
+- [ ] E0-S2 Add `docs/agent.md` (agent instructions and epic status board)
+- [ ] E0-S3 Add `docs/GIT_WORKFLOW.md` (branching, PR, review guide)
+- [ ] E0-S4 Add a PR template (`.github/pull_request_template.md`)
+- [ ] E0-S5 Add a CI workflow `.github/workflows/ci.yml` (build + test on PRs)
+- [ ] E0-S6 GitHub settings: collaborators, `develop` branch, branch protection on `main` and `develop` (manual, see GIT_WORKFLOW §1)
+
+**Done when**: `develop` exists, `main` and `develop` are protected, and CI runs on this PR.
+
+### E1 — Security, Users & Platform Core · **Dev1** · `feature/E1-security-core`
+
+> **Full spec:** [epics/E1-security-core.md](epics/E1-security-core.md)
+- [ ] E1-S1 PostgreSQL config with profiles (`dev`, `test` = H2, `prod`) and all credentials taken from env vars
+- [ ] E1-S2 Entities `User`, `Role` (M:M `user_roles`) and repositories; seed roles at startup
+- [ ] E1-S3 Register / Login / Logout / Me (`/api/v1/auth/**`): BCrypt, JWT, `Builder` for User, `Strategy` password policy
+- [ ] E1-S4 `SecurityConfig`: stateless JWT filter, URL rules, `@EnableMethodSecurity`, 401/403 JSON responses
+- [ ] E1-S5 `GlobalExceptionHandler` + `ApiError` (Builder) + custom exceptions (`NotFoundException`, `ConflictException`, …)
+- [ ] E1-S6 `UserController` (ADMIN): list, get, change role, delete user
+- [ ] E1-S7 Frontend: login/register screens, JWT stored and attached in `js/api.js`, role-aware navigation
+- [ ] E1-S8 Tests: 6 unit + 3 integration
+
+### E2 — Routine & Notices · **Dev2** · `feature/E2-routine-notices`
+
+> **Full spec:** [epics/E2-routine-notices.md](epics/E2-routine-notices.md)
+- [ ] E2-S1 Entities `Subject`, `RoutineSlot` (M:1 subject, M:1 teacher), `Notice` (M:1 author)
+- [ ] E2-S2 `SubjectController` CRUD (CR/ADMIN write, all read)
+- [ ] E2-S3 `RoutineController`: `GET /routine` (Composite Week → Day → Slot view), CRUD slots (CR only), `POST /routine/undo` (Memento)
+- [ ] E2-S4 `CachingRoutineServiceProxy` (Proxy) for the latest routine
+- [ ] E2-S5 `NoticeController` CRUD (CR/TEACHER write, all read), pagination, proper status codes
+- [ ] E2-S6 Frontend Routine and Notice pages wired to the API (replace mock data)
+- [ ] E2-S7 Tests: 5 unit + 2 integration
+
+### E3 — Assignments, Forms, Comments & Uploads · **Dev2** · `feature/E3-assignments`
+
+> **Full spec:** [epics/E3-assignments.md](epics/E3-assignments.md)
+- [ ] E3-S1 Entities `Assignment` (State: Draft/Published/Closed), `Submission`, `Comment`, `Form`, `FormResponse`
+- [ ] E3-S2 `AssignmentController` CRUD (TEACHER/CR), filter/sort by subject/date (Strategy); `PostFactory` reused
+- [ ] E3-S3 Per-student completion: `POST /assignments/{id}/complete`, `GET /assignments?status=pending|completed`
+- [ ] E3-S4 `CommentController`: `POST /assignments/{id}/comments {text, visibility}`; visibility Strategy hides TEACHER_ONLY comments from students
+- [ ] E3-S5 File upload: `AbstractUploadHandler` (Template Method) + validator chain (Chain of Responsibility) + `StorageFactory` (Abstract Factory)
+- [ ] E3-S6 `FormController` CRUD + submit a response
+- [ ] E3-S7 Frontend Assignments / Forms pages wired to the API
+- [ ] E3-S8 Tests: 6 unit + 3 integration
+
+### E4 — Group Chat & Notifications · **Dev3** · `feature/E4-chat`
+
+> **Full spec:** [epics/E4-chat.md](epics/E4-chat.md)
+- [ ] E4-S1 Entity `ChatMessage` (M:1 sender) and repository
+- [ ] E4-S2 WebSocket/STOMP `/ws`, topic `/topic/class`, JWT auth on CONNECT, `ChatRoom` Mediator
+- [ ] E4-S3 `ChatController` REST: `GET /chat/messages` (paginated history), `DELETE /chat/messages/{id}` (ADMIN/author)
+- [ ] E4-S4 Observer: publish an event when a notice or assignment is created, so the frontend gets a toast
+- [ ] E4-S5 Frontend chat page wired (live messages, history)
+- [ ] E4-S6 Tests: 3 unit + 2 integration
+
+### E5 — AI (RAG) Assistant · **Dev3** · `feature/E5-rag-assistant`
+
+> **Full spec:** [epics/E5-rag-assistant.md](epics/E5-rag-assistant.md)
+- [ ] E5-S1 `LlmClientAdapter` interface + one provider implementation (API key from env) + a fake for tests
+- [ ] E5-S2 Retrieval: index notices / routine / assignments (in-memory cosine similarity, or keyword fallback)
+- [ ] E5-S3 `RagFacade.ask(prompt)` and `POST /api/v1/assistant/ask` (answer + sources)
+- [ ] E5-S4 Action flow: prompt → `Command` (e.g. `UpdateRoutineSlotCommand`) → pending → `POST /assistant/confirm/{id}` executes (CR/TEACHER only); unclear prompts return clarifying questions
+- [ ] E5-S5 Frontend assistant page with a Confirm/Cancel card
+- [ ] E5-S6 Tests: 5 unit + 2 integration
+
+### E6 — Docker, CI/CD & Render Deployment · **Dev1** · `feature/E6-docker-cicd`
+
+> **Full spec:** [epics/E6-docker-cicd.md](epics/E6-docker-cicd.md)
+- [ ] E6-S1 Multi-stage `backend/Dockerfile` (Maven build → JRE runtime, non-root user)
+- [ ] E6-S2 `docker-compose.yml` (app + postgres, healthcheck, volume) + `.env.example`; `docker compose up --build` works
+- [ ] E6-S3 Extend CI: build, test, upload test report, build the Docker image
+- [ ] E6-S4 Render: PostgreSQL + Web Service (backend) + Static Site (frontend); env vars set in the Render dashboard
+- [ ] E6-S5 CD: on push to `main`, after tests pass, trigger the Render deploy hook (`RENDER_DEPLOY_HOOK_URL` secret)
+- [ ] E6-S6 Verify the live URL and record it in the README
+
+### E7 — Bonus: Monitoring & Second Deployment · **Dev3** · `feature/E7-observability`
+
+> **Full spec:** [epics/E7-observability.md](epics/E7-observability.md)
+- [ ] E7-S1 Spring Boot Actuator (`health`, `info`, `prometheus`) with secured endpoints
+- [ ] E7-S2 Micrometer Prometheus registry + `monitoring/prometheus.yml` + a Prometheus service in compose
+- [ ] E7-S3 Grafana service in compose + provisioned datasource + dashboard JSON (requests, latency, JVM)
+- [ ] E7-S4 Second deployment (Railway / Fly.io / Koyeb …) + its config file
+- [ ] E7-S5 Document monitoring and the second deployment in the README
+
+### E8 — Documentation & Demo · **Dev2** · `feature/E8-docs`
+
+> **Full spec:** [epics/E8-docs.md](epics/E8-docs.md)
+- [ ] E8-S1 README: description, features, tech stack, roles
+- [ ] E8-S2 Architecture diagram (Mermaid) + ER diagram (Mermaid)
+- [ ] E8-S3 API endpoint table (method, path, role, status codes)
+- [ ] E8-S4 Run instructions (local, Docker) + CI/CD explanation + live URL + repo link
+- [ ] E8-S5 Demo script for 15 minutes (who shows what) + seed demo data/users
+
+---
+
+## 7. Suggested order
+1. **E0** (blocks everything) →
+2. **E1** (security and core, which blocks every API epic) →
+3. **E2, E3, E4** in parallel (E6-S1/S2 Docker can start in parallel) →
+4. **E5, E6** →
+5. **E7, E8** last (E8 is updated continuously).
+
+## 8. Mandatory rules (every person and every AI assistant)
+1. **No AI co-author.** Never add a `Co-Authored-By:` AI trailer or a "Generated with" line to any commit or PR.
+2. **Never push to `main` directly.** Work goes into a feature branch, then a PR into `develop`. Releases go through a PR from `develop` into `main`.
+3. **Keep this plan current.** When a story is done, tick it here, and update the epic status in [`agent.md`](agent.md) in the same PR.
+4. No secrets in git. Use env vars and `.env` (git-ignored); `.env.example` is committed.
