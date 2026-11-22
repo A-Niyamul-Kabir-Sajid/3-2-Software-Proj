@@ -88,7 +88,7 @@ This section is the summary. **The detailed, implementable spec for each epic is
 
 **Done when**: `develop` exists, `main` and `develop` are protected, and CI runs on this PR.
 
-### E1 — Security, Users & Platform Core · **Dev1** · `feature/E1-security-core` · Status: **Not done**
+### E1 — Security, Users & Platform Core · **Dev1** · `feature/E1-security-core` · Status: **In progress**
 
 > **Full spec:** [epics/E1-security-core.md](epics/E1-security-core.md)
 - [ ] E1-S1 PostgreSQL config with profiles (`dev`, `test` = H2, `prod`) and all credentials taken from env vars

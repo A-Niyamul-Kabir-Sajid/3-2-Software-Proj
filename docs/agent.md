@@ -61,7 +61,7 @@ Keep this board, the TEAM_PLAN §6 epic headings and the `| Status |` row of eac
 | Epic | Title | Owner | Branch | Status |
 |---|---|---|---|---|
 | E0 | Project Setup & Git Workflow | Dev1 | `feature/E0-project-setup`, `feature/E0-followup` | Done |
-| E1 | Security, Users & Platform Core | Dev1 | `feature/E1-security-core` | Not done |
+| E1 | Security, Users & Platform Core | Dev1 | `feature/E1-security-core` | In progress |
 | E2 | Routine & Notices | Dev2 | `feature/E2-routine-notices` | Not done |
 | E3 | Assignments, Forms, Comments & Uploads | Dev2 | `feature/E3-assignments` | Not done |
 | E4 | Group Chat & Notifications | Dev3 | `feature/E4-chat` | Not done |
