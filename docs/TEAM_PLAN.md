@@ -79,12 +79,12 @@ This section is the summary. **The detailed, implementable spec for each epic is
 ### E0 — Project Setup & Git Workflow · **Dev1** · `feature/E0-project-setup`
 
 > **Full spec:** [epics/E0-project-setup.md](epics/E0-project-setup.md)
-- [ ] E0-S1 Save the project guideline, Jira-style team plan and detailed epic specs in `docs/`
-- [ ] E0-S2 Add `docs/agent.md` (agent instructions and epic status board)
-- [ ] E0-S3 Add `docs/GIT_WORKFLOW.md` (branching, PR, review guide)
-- [ ] E0-S4 Add a PR template (`.github/pull_request_template.md`)
-- [ ] E0-S5 Add a CI workflow `.github/workflows/ci.yml` (build + test on PRs)
-- [ ] E0-S6 GitHub settings: collaborators, `develop` branch, branch protection on `main` and `develop` (manual, see GIT_WORKFLOW §1)
+- [x] E0-S1 Save the project guideline, Jira-style team plan and detailed epic specs in `docs/`
+- [x] E0-S2 Add `docs/agent.md` (agent instructions and epic status board)
+- [x] E0-S3 Add `docs/GIT_WORKFLOW.md` (branching, PR, review guide)
+- [x] E0-S4 Add a PR template (`.github/pull_request_template.md`)
+- [x] E0-S5 Add a CI workflow `.github/workflows/ci.yml` (build + test on PRs)
+- [x] E0-S6 GitHub settings: collaborators, `develop` branch, branch protection on `main` and `develop` (manual, see GIT_WORKFLOW §1)
 
 **Done when**: `develop` exists, `main` and `develop` are protected, and CI runs on this PR.
 

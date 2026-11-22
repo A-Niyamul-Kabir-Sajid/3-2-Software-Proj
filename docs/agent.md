@@ -46,7 +46,7 @@ Status values: `Not done` · `In progress` · `In review` (PR open) · `Done` (m
 
 | Epic | Title | Owner | Branch | Status |
 |---|---|---|---|---|
-| E0 | Project Setup & Git Workflow | Dev1 | `feature/E0-project-setup` | In progress |
+| E0 | Project Setup & Git Workflow | Dev1 | `feature/E0-project-setup`, `feature/E0-followup` | Done |
 | E1 | Security, Users & Platform Core | Dev1 | `feature/E1-security-core` | Not done |
 | E2 | Routine & Notices | Dev2 | `feature/E2-routine-notices` | Not done |
 | E3 | Assignments, Forms, Comments & Uploads | Dev2 | `feature/E3-assignments` | Not done |
