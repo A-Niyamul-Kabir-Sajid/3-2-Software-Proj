@@ -1,0 +1,56 @@
+# agent.md — Instructions for AI agents and developers
+
+Read this file first, before any work in this repository.
+
+## 1. Read before working
+1. [docs/PROJECT_GUIDELINE.md](PROJECT_GUIDELINE.md) is the course requirements and marking rubric. Everything must satisfy it.
+2. [docs/TEAM_PLAN.md](TEAM_PLAN.md) holds the epics, stories, owners, DB design, pattern map and test quota.
+3. [docs/epics/CONVENTIONS.md](epics/CONVENTIONS.md) is the shared package layout, REST/error/security/test conventions and Definition of Done.
+4. **`docs/epics/E<n>-*.md` is the detailed spec of the epic you are working on** (entities, endpoints, roles, patterns, exact test names, acceptance criteria). Implement exactly what it says. If something is unclear or conflicts, ask the developer, then record the decision in §6 below.
+5. [docs/GIT_WORKFLOW.md](GIT_WORKFLOW.md) covers branching, commit commands, PRs and the review process.
+6. [docs/API.md](API.md) lists the endpoints that already exist. Append yours.
+
+## 2. How to work on an epic
+When a developer says "work on Epic E<n>":
+1. Check the status board below. Confirm the epic's dependencies (listed in the epic spec header) are Done.
+2. Branch from an up-to-date `develop`: `git switch develop && git pull && git switch -c feature/E<n>-<slug>`.
+3. Set the epic to **In progress** on the board below.
+4. Implement the stories in order. Make one or more small Conventional Commits per story, e.g. `feat(routine): add RoutineSlot entity` with `Refs E2-S1` in the body.
+5. Write the epic's tests (the exact names are in the spec). `cd backend && mvn clean verify` must pass.
+6. Tick finished stories in TEAM_PLAN §6, update this board and the test tracker (§5), and append endpoints to `docs/API.md`.
+7. **AI agents must not push or open the PR themselves.** Commit locally, then tell the developer to push and open a PR into `develop` using GIT_WORKFLOW §3. Set the status to `In review`.
+
+## 3. Hard rules
+- Never commit or push to `main` directly. Direct pushes to `main` are an automatic fail.
+- Never add a `Co-Authored-By:` AI trailer or a "Generated with …" line to commits or PRs.
+- No hardcoded credentials. Read them from env vars (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, …).
+- Every endpoint is under `/api/v1/**` and protected by role (TEAM_PLAN §2).
+- Use design patterns only where they fit, and name classes after them (TEAM_PLAN §4).
+- Use the global exception handler and return `ApiError` JSON. Never return raw stack traces.
+- The frontend talks to the backend only through `frontend/js/api.js`.
+
+## 4. Epic status board
+Status values: `Not done` · `In progress` · `In review` (PR open) · `Done` (merged into develop)
+
+| Epic | Title | Owner | Branch | Status |
+|---|---|---|---|---|
+| E0 | Project Setup & Git Workflow | Dev1 | `feature/E0-project-setup` | In progress |
+| E1 | Security, Users & Platform Core | Dev1 | `feature/E1-security-core` | Not done |
+| E2 | Routine & Notices | Dev2 | `feature/E2-routine-notices` | Not done |
+| E3 | Assignments, Forms, Comments & Uploads | Dev2 | `feature/E3-assignments` | Not done |
+| E4 | Group Chat & Notifications | Dev3 | `feature/E4-chat` | Not done |
+| E5 | AI (RAG) Assistant | Dev3 | `feature/E5-rag-assistant` | Not done |
+| E6 | Docker, CI/CD & Render Deployment | Dev1 | `feature/E6-docker-cicd` | Not done |
+| E7 | Bonus: Monitoring & Second Deployment | Dev3 | `feature/E7-observability` | Not done |
+| E8 | Documentation & Demo | Dev2 | `feature/E8-docs` | Not done |
+
+## 5. Test count tracker
+| | Target | Current |
+|---|---|---|
+| Unit tests (service layer) | ≥ 20 (aim 25) | 1 |
+| Integration tests (controller, MockMvc) | ≥ 10 (aim 12) | 2 |
+
+## 6. Notes / decisions log
+- Roles are `ADMIN`, `CR`, `TEACHER`, `STUDENT`, the guideline's ADMIN/SELLER/BUYER adapted to the class domain.
+- Dev1 reviews all PRs. Dev2 reviews Dev1's own PRs, because GitHub blocks self-approval.
+- Tests run on H2 (`test` profile). Dev and prod run on PostgreSQL.
