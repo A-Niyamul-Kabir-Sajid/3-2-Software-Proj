@@ -1,7 +1,10 @@
 (() => {
   const $ = (s, r = document) => r.querySelector(s);
   const D = window.DB;
-  const state = { role: 'STUDENT', tag: null, edit: false, ai: null };
+  // Primary role used by the UI. ADMIN gets the CR (editor) experience.
+  const ROLE_ORDER = ['ADMIN', 'CR', 'TEACHER', 'STUDENT'];
+  const primaryRole = u => (u && ROLE_ORDER.find(r => (u.roles || []).includes(r))) || 'STUDENT';
+  const state = { role: primaryRole(Api.user()), tag: null, edit: false, ai: null, authMode: 'login' };
   const canEdit = () => state.role !== 'STUDENT';
   const canTeach = () => state.role === 'TEACHER';
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -10,6 +13,20 @@
   const titles = { home: 'Home', routine: 'Routine', notices: 'Notices', assignments: 'Assignments', forms: 'Forms', chat: 'Chat', assistant: 'AI Assistant' };
 
   const views = {
+    auth() {
+      const reg = state.authMode === 'register';
+      return `<h1>${reg ? 'Create your <em>account</em>' : 'Welcome <em>back</em>'}</h1>
+      <p class="sub">${reg ? 'Students and CRs can register here. Teachers are added by the admin.' : 'Log in to see your routine, notices and assignments.'}</p>
+      <form id="authForm" class="card auth" novalidate>
+        ${reg ? '<input name="name" placeholder="Full name" autocomplete="name" required maxlength="100">' : ''}
+        <input name="email" type="email" placeholder="Email" autocomplete="email" required>
+        <input name="password" type="password" placeholder="Password${reg ? ' (8+ chars, letters and digits)' : ''}" autocomplete="${reg ? 'new-password' : 'current-password'}" required>
+        ${reg ? '<select name="role" aria-label="Role"><option value="STUDENT">Student</option><option value="CR">CR</option></select>' : ''}
+        <p class="err" id="authErr" role="alert"></p>
+        <button class="btn" type="submit">${reg ? 'Register' : 'Log in'}</button>
+        <button class="btn ghost" type="button" id="authSwitch">${reg ? 'I already have an account' : 'Create an account'}</button>
+      </form>`;
+    },
     home() {
       return `<h1>Your class,<br><em>in sync.</em></h1>
       <p class="sub">Routine, notices, assignments and forms in one installable app that works offline.</p>
@@ -68,7 +85,20 @@
     }
   };
 
+  function renderSession() {
+    const u = Api.user();
+    $('#who').hidden = $('#logout').hidden = !u;
+    if (u) $('#who').textContent = `${u.name} · ${state.role}`;
+  }
+
   function render() {
+    renderSession();
+    if (!Api.isLoggedIn()) {
+      $('#nav').innerHTML = '';
+      $('#view').innerHTML = views.auth();
+      bindAuth();
+      return;
+    }
     const page = location.hash.slice(1) || 'home';
     const v = views[page] ? page : 'home';
     $('#nav').innerHTML = Object.keys(titles).map(k => `<a href="#${k}" class="${k === v ? 'on' : ''}">${titles[k]}</a>`).join('');
@@ -110,6 +140,27 @@
     if (v === 'assistant') bindAssistant(on);
   }
 
+  function bindAuth() {
+    const form = $('#authForm'), err = $('#authErr');
+    $('#authSwitch').onclick = () => { state.authMode = state.authMode === 'login' ? 'register' : 'login'; render(); };
+    form.onsubmit = async e => {
+      e.preventDefault();
+      const f = Object.fromEntries(new FormData(form));
+      const btn = form.querySelector('[type=submit]');
+      err.textContent = ''; btn.disabled = true;
+      try {
+        if (state.authMode === 'register') await Api.register(f.name, f.email, f.password, f.role);
+        const user = await Api.login(f.email, f.password);
+        state.role = primaryRole(user); state.authMode = 'login';
+        location.hash = '#home'; render();
+      } catch (ex) {
+        err.textContent = ex.fieldErrors.length
+          ? ex.fieldErrors.map(fe => `${fe.field}: ${fe.message}`).join(' · ')
+          : ex.message;
+      } finally { btn.disabled = false; }
+    };
+  }
+
   function bindAssistant(on) {
     const add = h => { $('#msgs').insertAdjacentHTML('beforeend', h); $('#msgs').scrollTop = 1e6; };
     const say = t => add(msg({ u: 'Assistant', ai: true, t }));
@@ -137,7 +188,8 @@
     on('#aiSend', send); $('#ci').onkeydown = e => e.key === 'Enter' && send();
   }
 
-  $('#role').onchange = e => { state.role = e.target.value; state.edit = false; render(); };
+  $('#logout').onclick = async () => { await Api.logout(); state.edit = false; render(); };
+  addEventListener('api:unauthorized', () => { state.edit = false; render(); });
   addEventListener('hashchange', render);
   const net = () => { const n = $('#net'); n.textContent = navigator.onLine ? 'Online' : 'Offline'; n.className = 'pill ' + (navigator.onLine ? 'ok' : 'off'); };
   addEventListener('online', net); addEventListener('offline', net); net();
