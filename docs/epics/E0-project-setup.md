@@ -46,9 +46,9 @@ Follow `docs/GIT_WORKFLOW.md` §1 exactly:
 1. Add Dev2 and Dev3 as collaborators (Write).
 2. Create and push `develop`; make it the default branch.
 3. Push `feature/E0-project-setup` and open a PR into `develop`. CI runs and registers `build-and-test`.
-4. Protect `main`: PR required, 1 approval, dismiss stale approvals, `build-and-test` required, up-to-date branch, conversation resolution, no force push, no deletion, **no bypass, including admins**.
-5. Protect `develop` with the same rule, minus up-to-date if it becomes annoying.
-6. Merge options: squash for features, merge commit for releases, auto-delete head branches.
+4. Create ruleset `protect-main` (target `main`, empty bypass list): restrict deletions, require PR (1 approval, dismiss stale, conversation resolution, **merge** only), require status check `build-and-test`, block force pushes. Exact checkbox table: GIT_WORKFLOW §1.4.
+5. Create ruleset `protect-develop` (target `develop`): the same, plus linear history and branches up to date; **squash** only. No rules on `feature/*` / `docs/*`.
+6. Repo merge settings (§1.6): allow merge + squash, no rebase, suggest updating branches, auto-delete head branches.
 7. Verify that a direct push to `main` is rejected, and **take a screenshot for the demo**.
 8. Dev2 approves the E0 PR, and Dev1 squash-merges it.
 9. Dev2 and Dev3 clone the repo and set their git identity (`GIT_WORKFLOW` §2.1).

@@ -62,7 +62,7 @@ If no check appears:
 - **Settings → Actions → General → Allow all actions**.
 - The workflow file must be at exactly `.github/workflows/ci.yml` on the PR branch, and the PR base must be `develop` or `main`. CI runs only on PRs into `develop`/`main` and on pushes or merges into `develop`/`main`. Pushes to feature or docs branches alone do not trigger it (a manual run is possible via **Actions → CI → Run workflow**).
 
-**Step 4: protect the branches** (§1.4, §1.5). Now that the check has run, **`build-and-test`** shows up in the "Require status checks" search box. Type `build-and-test` and select it.
+**Step 4: protect the branches** (§1.4). Now that the check has run, **`build-and-test`** shows up in the "Require status checks" search box. Type `build-and-test` and select it.
 
 **Step 5: review and merge E0**
 1. Dev2 opens the PR → **Files changed** → reads the docs → **Review changes → Approve → Submit review**.
@@ -75,26 +75,64 @@ If no check appears:
    ```
 4. Dev1 sets E0 to `Done` in `docs/agent.md` via a small docs PR (§5.1).
 
-### 1.4 Branch protection for `main`
-**Settings → Branches → Add branch ruleset** (or **Add classic branch protection rule**). Set the target or branch name pattern to `main`, then enable:
-- [x] **Require a pull request before merging**
-  - [x] Required approvals: **1**
-  - [x] Dismiss stale pull request approvals when new commits are pushed
-- [x] **Require status checks to pass before merging**, with check **`build-and-test`**
-  - [x] Require branches to be up to date before merging
-- [x] **Require conversation resolution before merging**
-- [x] **Block force pushes** / do not allow force pushes
-- [x] **Restrict deletions**
-- [x] **Do not allow bypassing the above settings**, also called "Include administrators". This is important: without it the owner can still push directly.
+### 1.4 Branch rulesets for `main` and `develop`
+Only `main` and `develop` get rules. `feature/*` and `docs/*` branches have **no rules**, so anyone can push to them freely.
 
-### 1.5 Branch protection for `develop`
-Create the same rule for `develop`: PR required, 1 approval, `build-and-test` must pass, no force push.
+Create **two rulesets**: **Settings → Rules → Rulesets → New ruleset → New branch ruleset**.
+
+**Header of each ruleset:**
+| Field | `protect-main` | `protect-develop` |
+|---|---|---|
+| Ruleset name | `protect-main` | `protect-develop` |
+| Enforcement status | **Active** | **Active** |
+| Bypass list | **Empty**: nobody, not even the owner or admins, can bypass | **Empty** |
+| Target branches | Add target → Include by pattern → `main` | Add target → Include by pattern → `develop` |
+
+**Branch rules** (✅ = tick, ⬜ = leave unticked):
+| Rule | `main` | `develop` | Why |
+|---|---|---|---|
+| Restrict creations | ⬜ | ⬜ | The branches already exist |
+| Restrict updates | ⬜ | ⬜ | ⚠ With an empty bypass list this would block **all** merges, including PRs |
+| Restrict deletions | ✅ | ✅ | Nobody can delete `main`/`develop` |
+| Require linear history | ⬜ | ✅ | `main` receives **merge commits** from release PRs; `develop` only gets squash merges |
+| Require deployments to succeed | ⬜ | ⬜ | Deploy happens *after* merge (E6) |
+| Require signed commits | ⬜ | ⬜ | Needs a GPG/SSH signing setup for every dev; not required by the course |
+| **Require a pull request before merging** | ✅ | ✅ | **No direct push**: the course's automatic-fail rule |
+| ↳ Required approvals | **1** | **1** | Dev1 reviews (Dev2 for Dev1's own PRs) |
+| ↳ Dismiss stale pull request approvals when new commits are pushed | ✅ | ✅ | A new push needs a fresh approval |
+| ↳ Require review from specific teams | ⬜ | ⬜ | No GitHub teams (personal repo) |
+| ↳ Require review from Code Owners | ⬜ | ⬜ | No `CODEOWNERS` file |
+| ↳ Require approval of the most recent reviewable push | ⬜ | ⬜ | Would block Dev1 from approving release PRs that contain merges Dev1 performed |
+| ↳ Require conversation resolution before merging | ✅ | ✅ | Every review comment must be resolved |
+| ↳ Require an additional approval for unattributed Copilot PRs | ⬜ | ⬜ | Copilot is not used |
+| ↳ Allowed merge methods | **Merge** only | **Squash** only | Releases keep history; each epic becomes one commit on develop |
+| **Require status checks to pass** | ✅ | ✅ | CI must be green before a merge |
+| ↳ Require branches to be up to date before merging | ⬜ | ✅ | develop: the PR must contain the latest develop (click **Update branch** on the PR). main: off, because develop never contains main's release merge commit and would always show as "out of date" |
+| ↳ Do not require status checks on creation | ⬜ | ⬜ | Not needed |
+| ↳ Required status checks → **Add checks** | `build-and-test` | `build-and-test` | Type `build-and-test` and select it (source: GitHub Actions). It only appears after CI ran once (§1.3) |
+| Block force pushes | ✅ | ✅ | History cannot be rewritten |
+| Require code scanning results | ⬜ | ⬜ | Not configured |
+| Require code quality results | ⬜ | ⬜ | Not configured |
+| Restrict code coverage | ⬜ | ⬜ | No coverage upload |
+| Automatically request Copilot code review | ⬜ | ⬜ | The human reviewer is Dev1 |
+
+Click **Create** for each ruleset. Check that both appear under **Rulesets** with status **Active**.
+
+### 1.5 What the rules mean in practice
+| Action | `feature/*`, `docs/*` | `develop` | `main` |
+|---|---|---|---|
+| `git push` directly | ✅ allowed | ❌ rejected | ❌ rejected |
+| Force push / delete branch | ✅ (own branch) | ❌ | ❌ |
+| Merge a PR | n/a | needs 1 approval + green `build-and-test` + up to date + resolved conversations → **Squash and merge** | needs 1 approval + green `build-and-test` + resolved conversations → **Create a merge commit** |
+| CI runs | no | on PR + after merge | on PR + after merge |
 
 ### 1.6 Repo merge settings
-In **Settings → General → Pull Requests**:
-- Allow **squash merging** for feature → develop PRs, so each epic becomes one clean commit.
-- Allow **merge commits** for develop → main releases.
-- Enable **Automatically delete head branches**.
+In **Settings → General → Pull Requests** (repo-wide; the rulesets above narrow it per branch):
+- ✅ Allow **merge commits** (used for develop → main)
+- ✅ Allow **squash merging** (used for feature/docs → develop), with default message "Pull request title"
+- ⬜ Allow rebase merging
+- ✅ Always suggest updating pull request branches (shows the **Update branch** button)
+- ✅ **Automatically delete head branches**
 
 ### 1.7 Verify protection works (screenshot this for the demo)
 ```bash
