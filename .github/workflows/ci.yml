@@ -2,10 +2,12 @@ name: CI
 
 on:
   push:
-    branches: ['**']          # every branch: feature/*, docs/*, develop, main
+    branches: [develop, main]   # runs after a merge (or push) into develop / main
   pull_request:
-    branches: ['**']          # PRs into any base branch
-  workflow_dispatch:          # manual run from the Actions tab
+    branches: [develop, main]   # runs on every PR under review into develop / main
+  workflow_dispatch:            # optional manual run from the Actions tab
+# Pushes to feature/* or docs/* branches alone do NOT trigger CI;
+# they are checked once a PR into develop/main is opened.
 
 permissions:
   contents: read
