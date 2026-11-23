@@ -1,0 +1,6 @@
+# Code owners are automatically requested for review on every PR that touches matching files.
+# Syntax and variations: docs/CODEOWNERS_GUIDE.md
+# The last matching pattern wins.
+
+# Dev1 owns the entire repository
+* @A-Niyamul-Kabir-Sajid

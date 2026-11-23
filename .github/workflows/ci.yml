@@ -1,13 +1,21 @@
 name: CI
 
 on:
-  pull_request:
-    branches: [develop, main]
   push:
-    branches: [develop, main]
+    branches: [develop, main]   # runs after a merge (or push) into develop / main
+  pull_request:
+    branches: [develop, main]   # runs on every PR under review into develop / main
+  workflow_dispatch:            # optional manual run from the Actions tab
+# Pushes to feature/* or docs/* branches alone do NOT trigger CI;
+# they are checked once a PR into develop/main is opened.
 
 permissions:
   contents: read
+
+# Cancel an older run of the same branch/PR when a new commit is pushed
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-and-test:

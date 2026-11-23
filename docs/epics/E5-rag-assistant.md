@@ -2,6 +2,7 @@
 
 | Field | Value |
 |---|---|
+| Status | **Not done** |
 | Owner | Dev3 |
 | Reviewer | Dev1 |
 | Branch | `feature/E5-rag-assistant` |

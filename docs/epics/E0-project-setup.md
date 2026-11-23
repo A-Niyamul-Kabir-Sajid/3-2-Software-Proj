@@ -2,6 +2,7 @@
 
 | Field | Value |
 |---|---|
+| Status | **Done** |
 | Owner | Dev1 |
 | Reviewer | Dev2 (Dev1 cannot approve their own PR) |
 | Branch | `feature/E0-project-setup` |
@@ -34,7 +35,7 @@ Contains the one-time GitHub setup, every commit/branch/rebase/push command, the
 
 ### E0-S5 CI workflow
 `.github/workflows/ci.yml`:
-- Triggers on `pull_request` and `push` to `develop` and `main`.
+- Triggers only on `pull_request` into `develop`/`main` (review) and `push` to `develop`/`main` (after merge), plus manual `workflow_dispatch`. Pushes to other branches do not trigger CI. A `concurrency` group cancels outdated runs.
 - One job **named `build-and-test`**, because branch protection refers to this exact name.
 - JDK 17 Temurin with Maven cache; runs `mvn -B clean verify` in `backend/` and uploads the surefire reports.
 - E6 extends this file later with the Docker build and deploy jobs. **Do not rename the job.**
@@ -46,18 +47,18 @@ Follow `docs/GIT_WORKFLOW.md` §1 exactly:
 1. Add Dev2 and Dev3 as collaborators (Write).
 2. Create and push `develop`; make it the default branch.
 3. Push `feature/E0-project-setup` and open a PR into `develop`. CI runs and registers `build-and-test`.
-4. Protect `main`: PR required, 1 approval, dismiss stale approvals, `build-and-test` required, up-to-date branch, conversation resolution, no force push, no deletion, **no bypass, including admins**.
-5. Protect `develop` with the same rule, minus up-to-date if it becomes annoying.
-6. Merge options: squash for features, merge commit for releases, auto-delete head branches.
+4. Create ruleset `protect-main` (target `main`, empty bypass list): restrict deletions, require PR (1 approval, dismiss stale, conversation resolution, **merge** only), require status check `build-and-test`, block force pushes. Exact checkbox table: GIT_WORKFLOW §1.4.
+5. Create ruleset `protect-develop` (target `develop`): the same, plus linear history and branches up to date; **squash** only. No rules on `feature/*` / `docs/*`.
+6. Repo merge settings (§1.6): allow merge + squash, no rebase, suggest updating branches, auto-delete head branches.
 7. Verify that a direct push to `main` is rejected, and **take a screenshot for the demo**.
 8. Dev2 approves the E0 PR, and Dev1 squash-merges it.
 9. Dev2 and Dev3 clone the repo and set their git identity (`GIT_WORKFLOW` §2.1).
 
 ## Definition of Done
-- [ ] `develop` exists and is the default branch
-- [ ] `main` and `develop` are protected; a direct push is rejected (screenshot saved)
-- [ ] The E0 PR merged into `develop` with a green CI and 1 approval
-- [ ] `docs/agent.md` shows E0 = `Done`
+- [x] `develop` exists and is the default branch
+- [x] `main` and `develop` are protected; a direct push is rejected (screenshot saved)
+- [x] The E0 PR merged into `develop` with a green CI and 1 approval
+- [x] `docs/agent.md` shows E0 = `Done`
 
 ## Notes for agents
 - This epic contains **no Java code**. Do not modify `backend/` here.
