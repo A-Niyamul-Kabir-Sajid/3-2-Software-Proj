@@ -22,33 +22,117 @@ git push -u origin develop
 ```
 Then go to **Settings → General → Default branch** and set it to `develop`, so PRs target it by default.
 
-### 1.3 Push the Epic 0 branch and open its PR
+### 1.3 Push the Epic 0 branch, open its PR and get the first CI run
+Branch protection can only *require* a status check that GitHub has already seen run. So E0 must open a PR first; that run registers the check name `build-and-test`.
+
+**Step 1: push the branch** (`develop` must already be pushed, see §1.2):
 ```bash
 git switch feature/E0-project-setup
+git status                                   # must be clean
+git log --oneline develop..HEAD              # the E0 commits that will be in the PR
 git push -u origin feature/E0-project-setup
 ```
-Open a PR from `feature/E0-project-setup` into `develop`. CI must run on it. This first run creates the `build-and-test` check that branch protection needs.
 
-### 1.4 Branch protection for `main`
-**Settings → Branches → Add branch ruleset** (or **Add classic branch protection rule**). Set the target or branch name pattern to `main`, then enable:
-- [x] **Require a pull request before merging**
-  - [x] Required approvals: **1**
-  - [x] Dismiss stale pull request approvals when new commits are pushed
-- [x] **Require status checks to pass before merging**, with check **`build-and-test`**
-  - [x] Require branches to be up to date before merging
-- [x] **Require conversation resolution before merging**
-- [x] **Block force pushes** / do not allow force pushes
-- [x] **Restrict deletions**
-- [x] **Do not allow bypassing the above settings**, also called "Include administrators". This is important: without it the owner can still push directly.
+**Step 2: open the PR on GitHub (web UI)**
+1. Open the repo page. A yellow banner **"feature/E0-project-setup had recent pushes → Compare & pull request"** appears; click it. If there is no banner, go to **Pull requests → New pull request**.
+2. Set the dropdowns: **base: `develop`** ← **compare: `feature/E0-project-setup`**. Check that base is **not** `main`.
+3. Title: `E0: Project Setup & Git Workflow`.
+4. The description is pre-filled from the PR template. Fill it in: tick E0-S1…S5, Tests: "no code changes; existing 3 tests", How to test: "CI green".
+5. Right sidebar → **Reviewers** → choose **Dev2** (Dev1 cannot approve their own PR).
+6. Optionally: **Assignees** → yourself; **Labels** → `epic`, `docs`.
+7. Click **Create pull request**.
 
-### 1.5 Branch protection for `develop`
-Create the same rule for `develop`: PR required, 1 approval, `build-and-test` must pass, no force push.
+**Alternative: GitHub CLI** (`gh auth login` once):
+```bash
+gh pr create --base develop --head feature/E0-project-setup \
+  --title "E0: Project Setup & Git Workflow" \
+  --body-file .github/pull_request_template.md \
+  --reviewer <dev2-github-username>
+gh pr view --web          # open it in the browser to finish the description
+```
+
+**Step 3: watch CI run**
+1. At the bottom of the PR, the checks box shows **"CI / build-and-test — In progress"** (yellow dot). It takes about 1–3 minutes.
+2. Click **Details** (or the **Checks** tab, or the repo's **Actions** tab) to see the live log: checkout → JDK 17 → `mvn -B clean verify` → upload test reports.
+3. Green ✔ means it passed. A red ✖ means you should open the log, fix the problem locally, then `git commit` and `git push`. The PR re-runs automatically.
+4. With the CLI: `gh pr checks --watch`.
+
+If no check appears:
+- **Actions → "I understand my workflows, go ahead and enable them"** (Actions may be disabled on a new repo).
+- **Settings → Actions → General → Allow all actions**.
+- The workflow file must be at exactly `.github/workflows/ci.yml` on the PR branch, and the PR base must be `develop` or `main`. CI runs only on PRs into `develop`/`main` and on pushes or merges into `develop`/`main`. Pushes to feature or docs branches alone do not trigger it (a manual run is possible via **Actions → CI → Run workflow**).
+
+**Step 4: protect the branches** (§1.4). Now that the check has run, **`build-and-test`** shows up in the "Require status checks" search box. Type `build-and-test` and select it.
+
+**Step 5: review and merge E0**
+1. Dev2 opens the PR → **Files changed** → reads the docs → **Review changes → Approve → Submit review**.
+2. Dev1: when the PR is green and approved, click **Squash and merge**. The title becomes `docs(E0): project setup & git workflow (#1)`. **Confirm**, then **Delete branch**.
+3. Everyone syncs locally:
+   ```bash
+   git switch develop
+   git pull origin develop
+   git branch -d feature/E0-project-setup
+   ```
+4. Dev1 sets E0 to `Done` in `docs/agent.md` via a small docs PR (§5.1).
+
+### 1.4 Branch rulesets for `main` and `develop`
+Only `main` and `develop` get rules. `feature/*` and `docs/*` branches have **no rules**, so anyone can push to them freely.
+
+Create **two rulesets**: **Settings → Rules → Rulesets → New ruleset → New branch ruleset**.
+
+**Header of each ruleset:**
+| Field | `protect-main` | `protect-develop` |
+|---|---|---|
+| Ruleset name | `protect-main` | `protect-develop` |
+| Enforcement status | **Active** | **Active** |
+| Bypass list | **Empty**: nobody, not even the owner or admins, can bypass | **Empty** |
+| Target branches | Add target → Include by pattern → `main` | Add target → Include by pattern → `develop` |
+
+**Branch rules** (✅ = tick, ⬜ = leave unticked):
+| Rule | `main` | `develop` | Why |
+|---|---|---|---|
+| Restrict creations | ⬜ | ⬜ | The branches already exist |
+| Restrict updates | ⬜ | ⬜ | ⚠ With an empty bypass list this would block **all** merges, including PRs |
+| Restrict deletions | ✅ | ✅ | Nobody can delete `main`/`develop` |
+| Require linear history | ⬜ | ✅ | `main` receives **merge commits** from release PRs; `develop` only gets squash merges |
+| Require deployments to succeed | ⬜ | ⬜ | Deploy happens *after* merge (E6) |
+| Require signed commits | ⬜ | ⬜ | Needs a GPG/SSH signing setup for every dev; not required by the course |
+| **Require a pull request before merging** | ✅ | ✅ | **No direct push**: the course's automatic-fail rule |
+| ↳ Required approvals | **1** | **1** | Dev1 reviews (Dev2 for Dev1's own PRs) |
+| ↳ Dismiss stale pull request approvals when new commits are pushed | ✅ | ✅ | A new push needs a fresh approval |
+| ↳ Require review from specific teams | ⬜ | ⬜ | No GitHub teams (personal repo) |
+| ↳ Require review from Code Owners | ⬜ | ⬜ | `.github/CODEOWNERS` auto-requests Dev1 on every PR, but enforcing it would block Dev1's own PRs (sole owner, cannot self-approve). See [CODEOWNERS_GUIDE.md](CODEOWNERS_GUIDE.md) |
+| ↳ Require approval of the most recent reviewable push | ⬜ | ⬜ | Would block Dev1 from approving release PRs that contain merges Dev1 performed |
+| ↳ Require conversation resolution before merging | ✅ | ✅ | Every review comment must be resolved |
+| ↳ Require an additional approval for unattributed Copilot PRs | ⬜ | ⬜ | Copilot is not used |
+| ↳ Allowed merge methods | **Merge** only | **Squash** only | Releases keep history; each epic becomes one commit on develop |
+| **Require status checks to pass** | ✅ | ✅ | CI must be green before a merge |
+| ↳ Require branches to be up to date before merging | ⬜ | ✅ | develop: the PR must contain the latest develop (click **Update branch** on the PR). main: off, because develop never contains main's release merge commit and would always show as "out of date" |
+| ↳ Do not require status checks on creation | ⬜ | ⬜ | Not needed |
+| ↳ Required status checks → **Add checks** | `build-and-test` | `build-and-test` | Type `build-and-test` and select it (source: GitHub Actions). It only appears after CI ran once (§1.3) |
+| Block force pushes | ✅ | ✅ | History cannot be rewritten |
+| Require code scanning results | ⬜ | ⬜ | Not configured |
+| Require code quality results | ⬜ | ⬜ | Not configured |
+| Restrict code coverage | ⬜ | ⬜ | No coverage upload |
+| Automatically request Copilot code review | ⬜ | ⬜ | The human reviewer is Dev1 |
+
+Click **Create** for each ruleset. Check that both appear under **Rulesets** with status **Active**.
+
+### 1.5 What the rules mean in practice
+| Action | `feature/*`, `docs/*` | `develop` | `main` |
+|---|---|---|---|
+| `git push` directly | ✅ allowed | ❌ rejected | ❌ rejected |
+| Force push / delete branch | ✅ (own branch) | ❌ | ❌ |
+| Merge a PR | n/a | needs 1 approval + green `build-and-test` + up to date + resolved conversations → **Squash and merge** | needs 1 approval + green `build-and-test` + resolved conversations → **Create a merge commit** |
+| CI runs | no | on PR + after merge | on PR + after merge |
 
 ### 1.6 Repo merge settings
-In **Settings → General → Pull Requests**:
-- Allow **squash merging** for feature → develop PRs, so each epic becomes one clean commit.
-- Allow **merge commits** for develop → main releases.
-- Enable **Automatically delete head branches**.
+In **Settings → General → Pull Requests** (repo-wide; the rulesets above narrow it per branch):
+- ✅ Allow **merge commits** (used for develop → main)
+- ✅ Allow **squash merging** (used for feature/docs → develop), with default message "Pull request title"
+- ⬜ Allow rebase merging
+- ✅ Always suggest updating pull request branches (shows the **Update branch** button)
+- ✅ **Automatically delete head branches**
 
 ### 1.7 Verify protection works (screenshot this for the demo)
 ```bash
@@ -186,6 +270,32 @@ Then go to **Files changed → Review changes** and choose **Approve**, or **Req
   git switch develop && git pull origin develop
   git branch -d feature/E2-routine-notices
   ```
+
+## 5.1 Docs changes and syncing them with every developer
+`docs/` is the team's shared brain: plan, epic specs, status board and API list. **All docs changes go to `develop`** so every developer works from the same version.
+
+Rules:
+- **Never change `docs/` on `main`** (no direct commits, no docs-only PRs into `main`, no hotfixes). `main` only receives docs through a normal `develop → main` release PR.
+- Docs changes that belong to an epic (ticking stories, `agent.md` status, `API.md` rows) go **in that epic's PR into `develop`**.
+- Docs changes that cannot wait for an epic PR (e.g. marking an epic `Done` after merge, fixing a spec, logging a decision) go in a small docs branch into `develop`:
+  ```bash
+  git switch develop && git pull origin develop
+  git switch -c docs/E2-mark-done                      # docs/<short-topic>
+  # edit docs/agent.md, docs/TEAM_PLAN.md ...
+  git add docs/agent.md docs/TEAM_PLAN.md
+  git commit -m "docs(agent): mark E2 as done"
+  git push -u origin docs/E2-mark-done
+  # open PR: base develop <- docs/E2-mark-done, reviewer Dev1 → approve → squash & merge
+  ```
+- **After any docs PR merges into `develop`, every developer pulls it into their work:**
+  ```bash
+  git switch develop && git pull origin develop        # update local develop
+  git switch feature/E<n>-<slug>                       # back to your epic
+  git rebase develop                                   # bring the new docs into your branch
+  git push --force-with-lease                          # only if the branch was already pushed
+  ```
+- Conflicts in `docs/agent.md` (two people edited the status board at the same time): keep **both** rows' latest values, then `git add docs/agent.md && git rebase --continue`.
+- AI agents: before starting work, run `git fetch origin && git log HEAD..origin/develop -- docs/`. If that shows commits, tell the developer to sync (commands above) first.
 
 ## 6. Release to `main` (deploys to Render)
 When a set of epics is stable on `develop`:

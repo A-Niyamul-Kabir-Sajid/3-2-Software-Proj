@@ -20,8 +20,20 @@ When a developer says "work on Epic E<n>":
 6. Tick finished stories in TEAM_PLAN §6, update this board and the test tracker (§5), and append endpoints to `docs/API.md`.
 7. **AI agents must not push or open the PR themselves.** Commit locally, then tell the developer to push and open a PR into `develop` using GIT_WORKFLOW §3. Set the status to `In review`.
 
+### Short version: what a developer does to complete an epic
+1. **Sync**: `git switch develop && git pull origin develop`
+2. **Branch**: `git switch -c feature/E<n>-<slug>`
+3. **Tell the agent**: "Read docs/agent.md and implement Epic E<n>". The agent follows `docs/epics/E<n>-*.md`.
+4. **Commit per story** (Conventional Commits) and run `cd backend && mvn clean verify`.
+5. **Update docs in the same branch**: tick stories in TEAM_PLAN, set the status here to `In review`, update the test tracker, add rows to `docs/API.md`.
+6. **Push and open a PR into `develop`**: `git push -u origin feature/E<n>-<slug>`, then a PR with base `develop`, reviewer **Dev1** (Dev2 for Dev1's PRs). Wait for green CI.
+7. **Fix review comments** with new commits and push again.
+8. **After the merge**: sync `develop`, delete the branch, and mark the epic `Done` via a small `docs/…` PR into `develop` (GIT_WORKFLOW §5.1).
+
 ## 3. Hard rules
 - Never commit or push to `main` directly. Direct pushes to `main` are an automatic fail.
+- **`docs/` is never updated on `main`.** All docs changes go to `develop`, either in the epic PR or in a `docs/<topic>` branch PR. `main` only gets docs through a `develop → main` release PR. Never open a docs PR into `main`.
+- **Keep docs in sync.** Before starting work, check for new docs on `develop` (`git fetch origin && git log HEAD..origin/develop -- docs/`). If there are any, rebase on `develop` first (GIT_WORKFLOW §5.1).
 - Never add a `Co-Authored-By:` AI trailer or a "Generated with …" line to commits or PRs.
 - No hardcoded credentials. Read them from env vars (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, …).
 - Every endpoint is under `/api/v1/**` and protected by role (TEAM_PLAN §2).
