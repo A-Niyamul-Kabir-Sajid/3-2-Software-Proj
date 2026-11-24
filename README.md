@@ -18,4 +18,5 @@ docs/       Plans, architecture, per-person task prompts
 
 ## Run
 - Frontend: `cd frontend && npx serve .` (or any static server) → http://localhost:3000
-- Backend: `cd backend && mvn spring-boot:run` → http://localhost:8080
+- Backend: needs PostgreSQL and the env vars from [backend/.env.example](backend/.env.example) (at least `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`), then `cd backend && mvn spring-boot:run` → http://localhost:8080 (Swagger: `/swagger-ui.html`)
+- Tests: `cd backend && mvn clean verify` (H2, no database needed)

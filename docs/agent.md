@@ -2,6 +2,14 @@
 
 Read this file first, before any work in this repository.
 
+> **Always, without being asked:** when an epic's status changes (especially to **Done**), update it in **every** place it appears, in the same commit:
+> 1. the §4 status board below,
+> 2. the epic heading in `docs/TEAM_PLAN.md` §6 (`· Status: **Done**`) plus its story checkboxes,
+> 3. the `| Status |` row and Definition-of-Done checkboxes in `docs/epics/E<n>-*.md`,
+> 4. anywhere else the epic's status is mentioned (README, API.md notes, …).
+>
+> The developer should never have to remind you of this.
+
 ## 1. Read before working
 1. [docs/PROJECT_GUIDELINE.md](PROJECT_GUIDELINE.md) is the course requirements and marking rubric. Everything must satisfy it.
 2. [docs/TEAM_PLAN.md](TEAM_PLAN.md) holds the epics, stories, owners, DB design, pattern map and test quota.
@@ -17,7 +25,7 @@ When a developer says "work on Epic E<n>":
 3. Set the epic to **In progress** on the board below.
 4. Implement the stories in order. Make one or more small Conventional Commits per story, e.g. `feat(routine): add RoutineSlot entity` with `Refs E2-S1` in the body.
 5. Write the epic's tests (the exact names are in the spec). `cd backend && mvn clean verify` must pass.
-6. Tick finished stories in TEAM_PLAN §6, update this board and the test tracker (§5), and append endpoints to `docs/API.md`.
+6. Tick finished stories in TEAM_PLAN §6, update the epic status in all 3 places (§3), update the test tracker (§5), and append endpoints to `docs/API.md`.
 7. **AI agents must not push or open the PR themselves.** Commit locally, then tell the developer to push and open a PR into `develop` using GIT_WORKFLOW §3. Set the status to `In review`.
 
 ### Short version: what a developer does to complete an epic
@@ -43,11 +51,12 @@ When a developer says "work on Epic E<n>":
 
 ## 4. Epic status board
 Status values: `Not done` · `In progress` · `In review` (PR open) · `Done` (merged into develop)
+Keep this board, the TEAM_PLAN §6 epic headings and the `| Status |` row of each epic spec identical (see §3).
 
 | Epic | Title | Owner | Branch | Status |
 |---|---|---|---|---|
-| E0 | Project Setup & Git Workflow | Dev1 | `feature/E0-project-setup` | In progress |
-| E1 | Security, Users & Platform Core | Dev1 | `feature/E1-security-core` | Not done |
+| E0 | Project Setup & Git Workflow | Dev1 | `feature/E0-project-setup`, `feature/E0-followup` | Done |
+| E1 | Security, Users & Platform Core | Dev1 | `feature/E1-security-core` | In review |
 | E2 | Routine & Notices | Dev2 | `feature/E2-routine-notices` | Not done |
 | E3 | Assignments, Forms, Comments & Uploads | Dev2 | `feature/E3-assignments` | Not done |
 | E4 | Group Chat & Notifications | Dev3 | `feature/E4-chat` | Not done |
@@ -59,10 +68,14 @@ Status values: `Not done` · `In progress` · `In review` (PR open) · `Done` (m
 ## 5. Test count tracker
 | | Target | Current |
 |---|---|---|
-| Unit tests (service layer) | ≥ 20 (aim 25) | 1 |
-| Integration tests (controller, MockMvc) | ≥ 10 (aim 12) | 2 |
+| Unit tests (service layer) | ≥ 20 (aim 25) | 22 |
+| Integration tests (controller, MockMvc) | ≥ 10 (aim 12) | 13 |
 
 ## 6. Notes / decisions log
 - Roles are `ADMIN`, `CR`, `TEACHER`, `STUDENT`, the guideline's ADMIN/SELLER/BUYER adapted to the class domain.
 - Dev1 reviews all PRs. Dev2 reviews Dev1's own PRs, because GitHub blocks self-approval.
 - Tests run on H2 (`test` profile). Dev and prod run on PostgreSQL.
+- E1: tests need `-Dnet.bytebuddy.experimental=true` (set in surefire `argLine`) only because some devs run JDK 25 locally; CI uses JDK 17.
+- E1: self-registration allows only STUDENT or CR; ADMIN promotes users to TEACHER via `PUT /api/v1/admin/users/{id}/roles`.
+- E1: logout uses an in-memory JWT blacklist (per instance, cleared on restart), an accepted trade-off for a single Render instance.
+- E1: shared test helpers `@IntegrationTest` and `TestAuthHelper` (`src/test/java/edu/kuet/classsync/support/`) are to be reused by every later epic.

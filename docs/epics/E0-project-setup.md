@@ -2,6 +2,7 @@
 
 | Field | Value |
 |---|---|
+| Status | **Done** |
 | Owner | Dev1 |
 | Reviewer | Dev2 (Dev1 cannot approve their own PR) |
 | Branch | `feature/E0-project-setup` |
@@ -54,10 +55,10 @@ Follow `docs/GIT_WORKFLOW.md` §1 exactly:
 9. Dev2 and Dev3 clone the repo and set their git identity (`GIT_WORKFLOW` §2.1).
 
 ## Definition of Done
-- [ ] `develop` exists and is the default branch
-- [ ] `main` and `develop` are protected; a direct push is rejected (screenshot saved)
-- [ ] The E0 PR merged into `develop` with a green CI and 1 approval
-- [ ] `docs/agent.md` shows E0 = `Done`
+- [x] `develop` exists and is the default branch
+- [x] `main` and `develop` are protected; a direct push is rejected (screenshot saved)
+- [x] The E0 PR merged into `develop` with a green CI and 1 approval
+- [x] `docs/agent.md` shows E0 = `Done`
 
 ## Notes for agents
 - This epic contains **no Java code**. Do not modify `backend/` here.
