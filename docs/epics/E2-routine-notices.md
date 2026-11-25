@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Not done** |
+| Status | **In progress** |
 | Owner | Dev2 |
 | Reviewer | Dev1 |
 | Branch | `feature/E2-routine-notices` |

@@ -100,7 +100,7 @@ This section is the summary. **The detailed, implementable spec for each epic is
 - [x] E1-S7 Frontend: login/register screens, JWT stored and attached in `js/api.js`, role-aware navigation
 - [x] E1-S8 Tests: 6 unit + 3 integration
 
-### E2 — Routine & Notices · **Dev2** · `feature/E2-routine-notices` · Status: **Not done**
+### E2 — Routine & Notices · **Dev2** · `feature/E2-routine-notices` · Status: **In progress**
 
 > **Full spec:** [epics/E2-routine-notices.md](epics/E2-routine-notices.md)
 - [ ] E2-S1 Entities `Subject`, `RoutineSlot` (M:1 subject, M:1 teacher), `Notice` (M:1 author)
