@@ -40,4 +40,38 @@ TOKEN=$(curl -s -X POST $API/auth/login -H 'Content-Type: application/json' \
 curl $API/auth/me -H "Authorization: Bearer $TOKEN"
 ```
 
-<!-- E2: Subjects, Routine, Notices · E3: Assignments, Comments, Files, Forms · E4: Chat · E5: Assistant -->
+<!-- E2: Subjects, Routine, Notices -->
+
+## Subjects (E2)
+| Method | Path | Roles | Request | Success | Errors |
+|---|---|---|---|---|---|
+| GET | /api/v1/subjects | authenticated | none | 200 `List<SubjectResponse>` (sorted by code) | 401 |
+| GET | /api/v1/subjects/{id} | authenticated | none | 200 `SubjectResponse` | 401, 404 |
+| POST | /api/v1/subjects | CR, ADMIN | `{code, title, teacherIds?}` | 201 `SubjectResponse` + `Location` | 400 (validation / non-TEACHER), 401, 403, 404 (missing user), 409 (duplicate code) |
+| PUT | /api/v1/subjects/{id} | CR, ADMIN | `{code, title, teacherIds?}` | 200 `SubjectResponse` | 400, 401, 403, 404, 409 |
+| DELETE | /api/v1/subjects/{id} | CR, ADMIN | none | 204 | 401, 403, 404, 409 (in use by routine slots) |
+
+`SubjectResponse` = `{id, code, title, teachers:[{id, name}]}`.
+
+## Routine (E2)
+| Method | Path | Roles | Request | Success | Errors |
+|---|---|---|---|---|---|
+| GET | /api/v1/routine | authenticated | none | 200 `RoutineResponse` (`{days:[{day, slots:[…]}], totalSlots}`) | 401 |
+| GET | /api/v1/routine/slots/{id} | authenticated | none | 200 `RoutineSlotResponse` | 401, 404 |
+| POST | /api/v1/routine/slots | CR | `{day, startTime, endTime, room, subjectId, teacherId?}` | 201 `RoutineSlotResponse` + `Location` | 400 (endTime <= startTime / non-TEACHER), 401, 403, 404, 409 (overlap) |
+| PUT | /api/v1/routine/slots/{id} | CR | `{day, startTime, endTime, room, subjectId, teacherId?}` | 200 `RoutineSlotResponse` | 400, 401, 403, 404, 409 (overlap) |
+| DELETE | /api/v1/routine/slots/{id} | CR | none | 204 | 401, 403, 404 |
+| POST | /api/v1/routine/undo | CR | none | 200 `RoutineResponse` | 401, 403, 409 (`"Nothing to undo"`) |
+
+## Notices (E2)
+| Method | Path | Roles | Request | Success | Errors |
+|---|---|---|---|---|---|
+| GET | /api/v1/notices?page&size&q | authenticated | none (pinned first, then newest; `q` searches title/body) | 200 `PageResponse<NoticeResponse>` | 401 |
+| GET | /api/v1/notices/{id} | authenticated | none | 200 `NoticeResponse` | 401, 404 |
+| POST | /api/v1/notices | CR, TEACHER | `{title, body?, pinned}` | 201 `NoticeResponse` + `Location` | 400, 401, 403 |
+| PUT | /api/v1/notices/{id} | CR, TEACHER, ADMIN | `{title, body?, pinned}` | 200 `NoticeResponse` | 400, 401, 403 (not author/ADMIN), 404 |
+| DELETE | /api/v1/notices/{id} | CR, TEACHER, ADMIN | none | 204 | 401, 403 (not author/ADMIN), 404 |
+
+`NoticeResponse` = `{id, title, body, pinned, author:{id, name}, createdAt, updatedAt}`.
+
+<!-- E3: Assignments, Comments, Files, Forms · E4: Chat · E5: Assistant -->

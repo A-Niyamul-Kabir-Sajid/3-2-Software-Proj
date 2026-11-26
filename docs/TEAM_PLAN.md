@@ -100,16 +100,16 @@ This section is the summary. **The detailed, implementable spec for each epic is
 - [x] E1-S7 Frontend: login/register screens, JWT stored and attached in `js/api.js`, role-aware navigation
 - [x] E1-S8 Tests: 6 unit + 3 integration
 
-### E2 — Routine & Notices · **Dev2** · `feature/E2-routine-notices` · Status: **In progress**
+### E2 — Routine & Notices · **Dev2** · `feature/E2-routine-notices` · Status: **In review**
 
 > **Full spec:** [epics/E2-routine-notices.md](epics/E2-routine-notices.md)
-- [ ] E2-S1 Entities `Subject`, `RoutineSlot` (M:1 subject, M:1 teacher), `Notice` (M:1 author)
-- [ ] E2-S2 `SubjectController` CRUD (CR/ADMIN write, all read)
-- [ ] E2-S3 `RoutineController`: `GET /routine` (Composite Week → Day → Slot view), CRUD slots (CR only), `POST /routine/undo` (Memento)
-- [ ] E2-S4 `CachingRoutineServiceProxy` (Proxy) for the latest routine
-- [ ] E2-S5 `NoticeController` CRUD (CR/TEACHER write, all read), pagination, proper status codes
-- [ ] E2-S6 Frontend Routine and Notice pages wired to the API (replace mock data)
-- [ ] E2-S7 Tests: 5 unit + 2 integration
+- [x] E2-S1 Entities `Subject`, `RoutineSlot` (M:1 subject, M:1 teacher), `Notice` (M:1 author)
+- [x] E2-S2 `SubjectController` CRUD (CR/ADMIN write, all read)
+- [x] E2-S3 `RoutineController`: `GET /routine` (Composite Week → Day → Slot view), CRUD slots (CR only), `POST /routine/undo` (Memento)
+- [x] E2-S4 `CachingRoutineServiceProxy` (Proxy) for the latest routine
+- [x] E2-S5 `NoticeController` CRUD (CR/TEACHER write, all read), pagination, proper status codes
+- [x] E2-S6 Frontend Routine and Notice pages wired to the API (replace mock data)
+- [x] E2-S7 Tests: 5 unit + 2 integration
 
 ### E3 — Assignments, Forms, Comments & Uploads · **Dev2** · `feature/E3-assignments` · Status: **Not done**
 

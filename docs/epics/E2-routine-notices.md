@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **In progress** |
+| Status | **In review** |
 | Owner | Dev2 |
 | Reviewer | Dev1 |
 | Branch | `feature/E2-routine-notices` |
@@ -107,7 +107,7 @@ Integration tests:
 3. `RoutineControllerIT.createSlot_thenGetRoutine_containsSlot`
 
 ## Definition of Done
-- [ ] CR creates subjects and slots, the student sees the routine, and undo works
-- [ ] Teacher/CR post notices; a student cannot (403); a non-author cannot edit (403)
-- [ ] The frontend Routine and Notice pages use the API; mock data is removed
-- [ ] ≥ 5 unit + 2 IT green; `docs/agent.md` updated
+- [x] CR creates subjects and slots, the student sees the routine, and undo works
+- [x] Teacher/CR post notices; a student cannot (403); a non-author cannot edit (403)
+- [x] The frontend Routine and Notice pages use the API; mock data is removed
+- [x] ≥ 5 unit + 2 IT green; `docs/agent.md` updated

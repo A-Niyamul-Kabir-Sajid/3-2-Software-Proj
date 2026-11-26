@@ -57,7 +57,7 @@ Keep this board, the TEAM_PLAN §6 epic headings and the `| Status |` row of eac
 |---|---|---|---|---|
 | E0 | Project Setup & Git Workflow | Dev1 | `feature/E0-project-setup`, `feature/E0-followup` | Done |
 | E1 | Security, Users & Platform Core | Dev1 | `feature/E1-security-core` | In review |
-| E2 | Routine & Notices | Dev2 | `feature/E2-routine-notices` | In progress |
+| E2 | Routine & Notices | Dev2 | `feature/E2-routine-notices` | In review |
 | E3 | Assignments, Forms, Comments & Uploads | Dev2 | `feature/E3-assignments` | Not done |
 | E4 | Group Chat & Notifications | Dev3 | `feature/E4-chat` | Not done |
 | E5 | AI (RAG) Assistant | Dev3 | `feature/E5-rag-assistant` | Not done |
@@ -68,8 +68,8 @@ Keep this board, the TEAM_PLAN §6 epic headings and the `| Status |` row of eac
 ## 5. Test count tracker
 | | Target | Current |
 |---|---|---|
-| Unit tests (service layer) | ≥ 20 (aim 25) | 22 |
-| Integration tests (controller, MockMvc) | ≥ 10 (aim 12) | 13 |
+| Unit tests (service layer) | ≥ 20 (aim 25) | 38 |
+| Integration tests (controller, MockMvc) | ≥ 10 (aim 12) | 25 |
 
 ## 6. Notes / decisions log
 - Roles are `ADMIN`, `CR`, `TEACHER`, `STUDENT`, the guideline's ADMIN/SELLER/BUYER adapted to the class domain.
@@ -79,3 +79,4 @@ Keep this board, the TEAM_PLAN §6 epic headings and the `| Status |` row of eac
 - E1: self-registration allows only STUDENT or CR; ADMIN promotes users to TEACHER via `PUT /api/v1/admin/users/{id}/roles`.
 - E1: logout uses an in-memory JWT blacklist (per instance, cleared on restart), an accepted trade-off for a single Render instance.
 - E1: shared test helpers `@IntegrationTest` and `TestAuthHelper` (`src/test/java/edu/kuet/classsync/support/`) are to be reused by every later epic.
+- E2: Subject delete checks `routine_slots` usage (the `assignments` check will be added in E3); `RoutineController` mutations/undo require `ROLE_CR`; `NoticeController` PUT/DELETE allow `CR`, `TEACHER`, or `ADMIN` with author-or-ADMIN ownership enforced in `NoticeService`.
