@@ -50,3 +50,16 @@ input,textarea,select.in{flex:1;background:rgba(0,0,0,.35);border:1px solid var(
 @media(max-width:700px){.msg{max-width:90%}.top{padding:10px 14px}}
 .auth{display:grid;gap:12px;max-width:420px}.auth select{flex:1;background:rgba(0,0,0,.35);border:1px solid var(--line);color:var(--txt);border-radius:14px;padding:11px 16px;font:inherit}
 .auth select option{color:#000}.err{color:#ffb020;font-size:.82rem;min-height:1em}
+.row-wrap{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.stack{display:grid;gap:12px}
+.chk{display:flex;align-items:center;gap:8px;font-size:.86rem;color:var(--mut);cursor:pointer}
+.chk input{flex:0;width:auto;accent-color:#ff5a1f}
+.ok-msg{color:#5bf08a;font-size:.82rem}
+.btn.danger{background:rgba(255,59,15,.22);border:1px solid rgba(255,90,31,.55)}
+.notice-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.slot-item{padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.slot-item:last-child{border-bottom:0;padding-bottom:0}
+.slot-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.field-col{display:grid;gap:4px;min-width:120px;flex:1}
+.field-col label{font-size:.74rem;color:var(--mut)}
+select.in option{color:#000}
